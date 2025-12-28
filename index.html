@@ -137,7 +137,7 @@ function update(){
  document.getElementById("currentStop").textContent=stops[current].name;
  document.getElementById("label").textContent=current<end?"Следваща спирка / Next stop":"Спирка / Bus stop";
 
- playSeq(["audio/stop.mp3","audio/stops/"+stops[current].file+".mp3"]);
+ playSeq(["stop.mp3",+stops[current].file+".mp3"]);
 }
 
 let bg=true;
@@ -154,3 +154,4 @@ if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
 </body>
 
 </html>
+
