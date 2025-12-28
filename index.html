@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stara Zagora Speech</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+body{margin:0;font-family:Arial;background:#000;color:#fff}
+.header{display:flex;align-items:center}
+.line{background:#0a7d13;font-size:42px;padding:10px 18px}
+.dirWrap{overflow:hidden;flex:1}
+.dir{white-space:nowrap;display:inline-block;padding-left:100%;
+animation:scroll 18s linear infinite}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+.info{text-align:center;font-size:22px;margin:10px}
+.time{font-size:18px;opacity:.8}
+
+select{width:95%;font-size:18px;margin:10px}
+
+ul{list-style:none;padding:0;margin:0}
+li{padding:6px 12px;border-bottom:1px solid #222}
+.current{color:#ff4d4d}
+.next{color:#6bff6b}
+.end{color:orange}
+
+button{font-size:18px;margin:10px;padding:10px;width:95%}
+footer{font-size:12px;opacity:.6;text-align:center;margin:10px}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="line">71</div>
+  <div class="dirWrap">
+    <div class="dir">кв. Зора – кв. Железник през Стадион Берое</div>
+  </div>
+</div>
+
+<button id="audioBtn">🔊 Включи звук</button>
+
+<div class="info" id="label">Спирка / Bus stop</div>
+<div class="info" id="currentStop"></div>
+
+<select id="endSelect"></select>
+
+<ul id="stops"></ul>
+
+<div class="time" id="time"></div>
+
+<footer>Stara Zagora Speech · автор: Кирил Кирилов</footer>
+
+<script>
+const stops=[
+{name:"Зора - Обръщало",lat:42.424226,lon:25.68831,file:"zora_obrushtalo"},
+{name:"Зора - 2",lat:42.4265,lon:25.6875,file:"zora_2"},
+{name:"Зора - 1",lat:42.4281,lon:25.686,file:"zora_1"},
+{name:"Метро Зора",lat:42.43087,lon:25.68417,file:"metro_zora"},
+{name:"Спирка",lat:42.4315,lon:25.683,file:"spirka"},
+{name:"СБА",lat:42.432,lon:25.682,file:"sba"},
+{name:"Спортна зала",lat:42.428153,lon:25.658405,file:"sportna_zala"},
+{name:"ДЗУ",lat:42.427892,lon:25.653642,file:"dzu"},
+{name:"Крайречен изток",lat:42.431329,lon:25.643576,file:"krairechen_iztok"},
+{name:"Техникуми север",lat:42.431909,lon:25.640756,file:"tehnikumi_sever"},
+{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,file:"kaufland_bedechka_iztok"},
+{name:"ПЗ Загорка запад",lat:42.441585,lon:25.633277,file:"pz_zagorka_zapad"},
+{name:"Мол Галерия",lat:42.43812,lon:25.631661,file:"mol_galeria"},
+{name:"ТД на НАП",lat:42.434237,lon:25.628527,file:"nap"},
+{name:"Кипарис",lat:42.431285,lon:25.620854,file:"kiparis"},
+{name:"Стадион Берое",lat:42.431219,lon:25.617108,file:"stadion_beroe"},
+{name:"Спортна 1",lat:42.428664,lon:25.616594,file:"sportna_1"},
+{name:"Млечна кухня",lat:42.426005,lon:25.61107,file:"mlechna_kuhnia"},
+{name:"Неолитни жилища",lat:42.424834,lon:25.609599,file:"neolitni_jilishta"},
+{name:"Три чучура",lat:42.4179,lon:25.605246,file:"tri_chuchura"},
+{name:"Железник изток 2",lat:42.415722,lon:25.599217,file:"jheleznik_iztok_2"},
+{name:"Железник изток 1",lat:42.414581,lon:25.596919,file:"jheleznik_iztok_1"},
+{name:"Железник РПУ",lat:42.412772,lon:25.592275,file:"jheleznik_rpu"},
+{name:"СОУ Железник",lat:42.412613,lon:25.586999,file:"sou_jheleznik"},
+{name:"Железник - 2",lat:42.410353,lon:25.587765,file:"jheleznik_2"},
+{name:"Железник - Обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
+];
+
+let audioEnabled=false,playedLine=false,current=-1,end=stops.length-1;
+
+const list=document.getElementById("stops");
+stops.forEach((s,i)=>{
+  const li=document.createElement("li");
+  li.textContent=s.name;
+  list.appendChild(li);
+});
+
+const sel=document.getElementById("endSelect");
+stops.forEach((s,i)=>{
+  const o=document.createElement("option");
+  o.value=i;o.textContent=s.name;
+  sel.appendChild(o);
+});
+sel.onchange=e=>end=+e.target.value;
+
+document.getElementById("audioBtn").onclick=()=>{
+  audioEnabled=true;
+  playSeq(["audio/line.mp3","audio/71.mp3","audio/direction.mp3","audio/zora_jheleznik_stadion_beroe.mp3"]);
+};
+
+function playSeq(arr){
+ if(!audioEnabled)return;
+ let i=0,a=new Audio();
+ a.onended=()=>{i++;if(i<arr.length){a.src=arr[i];a.play();}};
+ a.src=arr[0];a.play();
+}
+
+navigator.geolocation.watchPosition(p=>{
+ let min=999,idx=0;
+ stops.forEach((s,i)=>{
+  const d=Math.hypot(p.coords.latitude-s.lat,p.coords.longitude-s.lon);
+  if(d<min){min=d;idx=i;}
+ });
+ if(idx!==current){
+  current=idx;
+  update();
+ }
+});
+
+function update(){
+ const items=document.querySelectorAll("li");
+ items.forEach((li,i)=>{
+  li.className="";
+  if(i===current)li.classList.add("current");
+  else if(i===current+1)li.classList.add("next");
+  if(i===end)li.classList.add("end");
+ });
+
+ document.getElementById("currentStop").textContent=stops[current].name;
+ document.getElementById("label").textContent=current<end?"Следваща спирка / Next stop":"Спирка / Bus stop";
+
+ playSeq(["audio/stop.mp3","audio/stops/"+stops[current].file+".mp3"]);
+}
+
+let bg=true;
+setInterval(()=>{
+ const d=new Date();
+ document.getElementById("time").textContent=bg
+ ? d.toLocaleString("bg-BG",{weekday:"long",hour:"2-digit",minute:"2-digit"})
+ : d.toLocaleString("en-US",{weekday:"long",hour:"2-digit",minute:"2-digit"});
+ bg=!bg;
+},3000);
+
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
