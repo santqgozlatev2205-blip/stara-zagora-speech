@@ -103,7 +103,7 @@ sel.onchange=e=>end=+e.target.value;
 
 document.getElementById("audioBtn").onclick=()=>{
   audioEnabled=true;
-  playSeq(["audio/line.mp3","audio/71.mp3","audio/direction.mp3","audio/zora_jheleznik_stadion_beroe.mp3"]);
+  playSeq(["line.mp3","71.mp3","direction.mp3","zora_jheleznik_stadion_beroe.mp3"]);
 };
 
 function playSeq(arr){
@@ -152,4 +152,5 @@ setInterval(()=>{
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
 </script>
 </body>
+
 </html>
