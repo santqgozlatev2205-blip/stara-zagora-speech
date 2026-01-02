@@ -43,7 +43,7 @@ footer{font-size:12px;opacity:.6;text-align:center;margin:10px}
 
 <button id="audioBtn">🔊 Включи звук</button>
 
-<div class="info" id="label">Спирка / Bus stop</div>
+<div class="info" id="label">Избери крайна спирка</div>
 <div class="info" id="currentStop"></div>
 
 <select id="endSelect"></select>
@@ -55,7 +55,7 @@ footer{font-size:12px;opacity:.6;text-align:center;margin:10px}
 <footer>Stara Zagora Speech · автор: Кирил Кирилов</footer>
 
 <script>
-const stops=[
+const stops=[/* НЕ Е ПРОМЕНЯНО */ 
 {name:"Зора - Обръщало",lat:42.424226,lon:25.68831,file:"zora_obrushtalo"},
 {name:"Зора - 2",lat:42.4265,lon:25.6875,file:"zora_2"},
 {name:"Зора - 1",lat:42.4281,lon:25.686,file:"zora_1"},
@@ -84,34 +84,34 @@ const stops=[
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
 ];
 
-let audioEnabled=false,playedLine=false,current=-1,end=stops.length-1;
+let audioEnabled=false,current=-1,end=stops.length-1;
 
 const list=document.getElementById("stops");
-stops.forEach((s,i)=>{
+
+function renderList(){
+ list.innerHTML="";
+ stops.forEach((s,i)=>{
+  if(i<current-1) return;
   const li=document.createElement("li");
   li.textContent=s.name;
+  if(i===current)li.className="current";
+  if(i===current+1)li.className="next";
+  if(i===end)li.className="end";
   list.appendChild(li);
-});
+ });
+}
 
 const sel=document.getElementById("endSelect");
 stops.forEach((s,i)=>{
-  const o=document.createElement("option");
-  o.value=i;o.textContent=s.name;
-  sel.appendChild(o);
+ const o=document.createElement("option");
+ o.value=i;o.textContent=s.name;
+ sel.appendChild(o);
 });
 sel.onchange=e=>end=+e.target.value;
 
 document.getElementById("audioBtn").onclick=()=>{
-  audioEnabled=true;
-  playSeq(["line.mp3","71.mp3","direction.mp3","zora_jheleznik_stadion_beroe.mp3"]);
+ audioEnabled=true;
 };
-
-function playSeq(arr){
- if(!audioEnabled)return;
- let i=0,a=new Audio();
- a.onended=()=>{i++;if(i<arr.length){a.src=arr[i];a.play();}};
- a.src=arr[0];a.play();
-}
 
 navigator.geolocation.watchPosition(p=>{
  let min=999,idx=0;
@@ -121,37 +121,30 @@ navigator.geolocation.watchPosition(p=>{
  });
  if(idx!==current){
   current=idx;
-  update();
+  document.getElementById("currentStop").textContent=stops[current].name;
+  renderList();
+  if(audioEnabled)new Audio(stops[current].file+".mp3").play();
  }
+},{
+ enableHighAccuracy:true,
+ maximumAge:1000,
+ timeout:5000
 });
 
-function update(){
- const items=document.querySelectorAll("li");
- items.forEach((li,i)=>{
-  li.className="";
-  if(i===current)li.classList.add("current");
-  else if(i===current+1)li.classList.add("next");
-  if(i===end)li.classList.add("end");
- });
-
- document.getElementById("currentStop").textContent=stops[current].name;
- document.getElementById("label").textContent=current<end?"Следваща спирка / Next stop":"Спирка / Bus stop";
-
- playSeq(["stop.mp3",+stops[current].file+".mp3"]);
-}
-
-let bg=true;
 setInterval(()=>{
  const d=new Date();
- document.getElementById("time").textContent=bg
- ? d.toLocaleString("bg-BG",{weekday:"long",hour:"2-digit",minute:"2-digit"})
- : d.toLocaleString("en-US",{weekday:"long",hour:"2-digit",minute:"2-digit"});
- bg=!bg;
-},3000);
-
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+ document.getElementById("time").textContent=
+ d.toLocaleString("bg-BG",{
+  weekday:"long",
+  day:"2-digit",
+  month:"2-digit",
+  year:"numeric",
+  hour:"2-digit",
+  minute:"2-digit"
+ });
+},1000);
 </script>
 </body>
-
 </html>
+
 
