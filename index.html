@@ -54,7 +54,7 @@ footer{font-size:12px;opacity:.6;text-align:center;margin:10px}
 
 <div class="time" id="time"></div>
 
-<footer>Stara Zagora Speech · автор: Кирил Кирилов-ivanovkiko72@gmail.com</footer>
+<footer>Stara Zagora Speech · автор: Кирил Кирилов</footer>
 
 <script>
 const stops=[
@@ -86,73 +86,83 @@ const stops=[
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
 ];
 
+const STOP_RADIUS = 0.00009;      // ~10 м
+const NEXT_RADIUS = 0.000045;     // ~5 м
+
 let current = 0;
 let end = stops.length-1;
 let audioEnabled=false;
+let stopPlayed=false;
+let nextPlayed=false;
 
 const list=document.getElementById("stops");
 const sel=document.getElementById("endSelect");
 const label=document.getElementById("label");
 const currentStop=document.getElementById("currentStop");
 
-document.getElementById("audioBtn").onclick=()=>audioEnabled=true;
+function playSeq(arr){
+ let i=0;
+ const a=new Audio(arr[0]);
+ a.onended=()=>{i++; if(i<arr.length){a.src=arr[i]; a.play();}};
+ a.play();
+}
+
+document.getElementById("audioBtn").onclick=()=>{
+ audioEnabled=true;
+ playSeq(["line.mp3","71.mp3","direction.mp3","zora_jheleznik_stadion_beroe.mp3"]);
+};
 
 function render(){
  list.innerHTML="";
  sel.innerHTML="";
-
  for(let i=current;i<stops.length;i++){
   const li=document.createElement("li");
   li.textContent=stops[i].name;
-
-  if(i===current) li.classList.add("current");
-  if(i===current+1) li.classList.add("next");
-  if(i===end) li.classList.add("end");
-
+  if(i===current)li.className="current";
+  if(i===current+1)li.className="next";
+  if(i===end)li.className="end";
   list.appendChild(li);
 
   const o=document.createElement("option");
-  o.value=i;
-  o.textContent=stops[i].name;
-  if(i===end) o.classList.add("endOption");
+  o.value=i;o.textContent=stops[i].name;
+  if(i===end)o.classList.add("endOption");
   sel.appendChild(o);
  }
-
- // ЛОГИЧНА СМЯНА НА ТЕКСТА
- label.textContent =
-  current < end
-   ? "Следваща спирка / Next stop"
-   : "Спирка / Bus stop";
-
- currentStop.textContent = stops[current].name;
+ currentStop.textContent=stops[current].name;
 }
 
-sel.onchange=e=>{
- end=+e.target.value;
- render();
-};
-
+sel.onchange=e=>{end=+e.target.value; render();};
 render();
 
-// GPS (на лаптоп може да не сменя често – това е нормално)
 navigator.geolocation.watchPosition(
  pos=>{
   const here={lat:pos.coords.latitude,lon:pos.coords.longitude};
-  for(let i=current+1;i<stops.length;i++){
-   const d=Math.hypot(here.lat-stops[i].lat,here.lon-stops[i].lon);
-   if(d<0.00035){
-    current=i;
-    render();
-    if(audioEnabled)new Audio(stops[i].file+".mp3").play();
-    break;
-   }
+
+  const dStop=Math.hypot(here.lat-stops[current].lat,here.lon-stops[current].lon);
+  if(dStop<STOP_RADIUS && !stopPlayed){
+    stopPlayed=true;
+    nextPlayed=false;
+    label.textContent="Спирка / Bus stop";
+    if(audioEnabled)playSeq(["stop.mp3",stops[current].file+".mp3"]);
+  }
+
+  const next=current+1;
+  if(next<stops.length){
+    const dNext=Math.hypot(here.lat-stops[next].lat,here.lon-stops[next].lon);
+    if(dNext<NEXT_RADIUS && !nextPlayed){
+      nextPlayed=true;
+      label.textContent="Следваща спирка / Next stop";
+      if(audioEnabled)playSeq(["next_stop.mp3",stops[next].file+".mp3"]);
+      current=next;
+      stopPlayed=false;
+      render();
+    }
   }
  },
  err=>console.warn(err.message),
  {enableHighAccuracy:true}
 );
 
-// ДАТА + ЧАС
 setInterval(()=>{
  const d=new Date();
  document.getElementById("time").textContent=
@@ -169,6 +179,8 @@ setInterval(()=>{
 
 </body>
 </html>
+
+
 
 
 
