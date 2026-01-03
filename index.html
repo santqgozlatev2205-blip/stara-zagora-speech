@@ -19,7 +19,8 @@ animation:scroll 18s linear infinite}
 .info{text-align:center;font-size:22px;margin:10px}
 .time{text-align:center;font-size:18px;opacity:.8;margin-bottom:10px}
 
-select{width:95%;font-size:18px;margin:10px}
+select{width:95%;font-size:18px;margin:10px;background:#000;color:#fff}
+select option.endOption{color:orange}
 
 ul{list-style:none;padding:0;margin:0}
 li{padding:6px 12px;border-bottom:1px solid #222}
@@ -43,8 +44,8 @@ footer{font-size:12px;opacity:.6;text-align:center;margin:10px}
 
 <button id="audioBtn">🔊 Включи звук</button>
 
-<div class="info" id="label">Текуща спирка</div>
-<div class="info" id="currentStop">Изчакване на GPS…</div>
+<div class="info" id="label">Спирка / Bus stop</div>
+<div class="info" id="currentStop"></div>
 
 <div class="info">Избери крайна спирка</div>
 <select id="endSelect"></select>
@@ -53,7 +54,7 @@ footer{font-size:12px;opacity:.6;text-align:center;margin:10px}
 
 <div class="time" id="time"></div>
 
-<footer>Stara Zagora Speech · автор: Кирил Кирилов</footer>
+<footer>Stara Zagora Speech · автор: Кирил Кирилов-ivanovkiko72@gmail.com</footer>
 
 <script>
 const stops=[
@@ -85,90 +86,91 @@ const stops=[
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
 ];
 
-const RADIUS = 0.00035; // ~35м
-let current = -1;
-let end = stops.length - 1;
-let audioEnabled = false;
+let current = 0;
+let end = stops.length-1;
+let audioEnabled=false;
 
-const list = document.getElementById("stops");
-const sel  = document.getElementById("endSelect");
+const list=document.getElementById("stops");
+const sel=document.getElementById("endSelect");
+const label=document.getElementById("label");
+const currentStop=document.getElementById("currentStop");
 
-document.getElementById("audioBtn").onclick = () => audioEnabled = true;
+document.getElementById("audioBtn").onclick=()=>audioEnabled=true;
 
-function dist(a,b){
-  return Math.hypot(a.lat-b.lat,a.lon-b.lon);
+function render(){
+ list.innerHTML="";
+ sel.innerHTML="";
+
+ for(let i=current;i<stops.length;i++){
+  const li=document.createElement("li");
+  li.textContent=stops[i].name;
+
+  if(i===current) li.classList.add("current");
+  if(i===current+1) li.classList.add("next");
+  if(i===end) li.classList.add("end");
+
+  list.appendChild(li);
+
+  const o=document.createElement("option");
+  o.value=i;
+  o.textContent=stops[i].name;
+  if(i===end) o.classList.add("endOption");
+  sel.appendChild(o);
+ }
+
+ // ЛОГИЧНА СМЯНА НА ТЕКСТА
+ label.textContent =
+  current < end
+   ? "Следваща спирка / Next stop"
+   : "Спирка / Bus stop";
+
+ currentStop.textContent = stops[current].name;
 }
 
-function renderStops(){
-  list.innerHTML="";
-  for(let i=current;i<stops.length;i++){
-    if(i<0) continue;
-    const li=document.createElement("li");
-    li.textContent=stops[i].name;
-    if(i===current) li.className="current";
-    if(i===current+1) li.className="next";
-    if(i===end) li.className="end";
-    list.appendChild(li);
-  }
-}
+sel.onchange=e=>{
+ end=+e.target.value;
+ render();
+};
 
-function renderSelect(){
-  sel.innerHTML="";
-  for(let i=current;i<stops.length;i++){
-    if(i<0) continue;
-    const o=document.createElement("option");
-    o.value=i;
-    o.textContent=stops[i].name;
-    sel.appendChild(o);
-  }
-}
+render();
 
-sel.onchange=e=>end=+e.target.value;
-
-navigator.geolocation.watchPosition(pos=>{
+// GPS (на лаптоп може да не сменя често – това е нормално)
+navigator.geolocation.watchPosition(
+ pos=>{
   const here={lat:pos.coords.latitude,lon:pos.coords.longitude};
-
   for(let i=current+1;i<stops.length;i++){
-    if(dist(here,stops[i])<RADIUS){
-      current=i;
-
-      document.getElementById("currentStop").textContent =
-        stops[current].name;
-
-      document.getElementById("label").textContent =
-        current<end ? "Следваща спирка" : "Крайна спирка";
-
-      renderStops();
-      renderSelect();
-
-      if(audioEnabled){
-        new Audio(stops[current].file+".mp3").play();
-      }
-      break;
-    }
+   const d=Math.hypot(here.lat-stops[i].lat,here.lon-stops[i].lon);
+   if(d<0.00035){
+    current=i;
+    render();
+    if(audioEnabled)new Audio(stops[i].file+".mp3").play();
+    break;
+   }
   }
-},{
-  enableHighAccuracy:true,
-  maximumAge:0,
-  timeout:3000
-});
+ },
+ err=>console.warn(err.message),
+ {enableHighAccuracy:true}
+);
 
+// ДАТА + ЧАС
 setInterval(()=>{
-  const d=new Date();
-  document.getElementById("time").textContent =
-    d.toLocaleString("bg-BG",{
-      weekday:"long",
-      day:"2-digit",
-      month:"2-digit",
-      year:"numeric",
-      hour:"2-digit",
-      minute:"2-digit"
-    });
+ const d=new Date();
+ document.getElementById("time").textContent=
+  d.toLocaleString("bg-BG",{
+   weekday:"long",
+   day:"2-digit",
+   month:"2-digit",
+   year:"numeric",
+   hour:"2-digit",
+   minute:"2-digit"
+  });
 },1000);
 </script>
 
 </body>
 </html>
+
+
 
 
 
