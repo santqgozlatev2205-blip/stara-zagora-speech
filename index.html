@@ -3,46 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bus Speech</title>
+<title>STARA ZAGORA SPEECH BY KIRIL KIRILOV</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#000;color:#fff}
-.header{display:flex}
-.line{background:#0a7d13;font-size:42px;padding:10px 18px}
-.dir{flex:1;overflow:hidden;white-space:nowrap;padding:18px;
-animation:scroll 18s linear infinite}
+.header{display:flex;align-items:center;height:70px;overflow:hidden}
+.line{background:#0a7d13;color:#fff;font-size:42px;font-weight:bold;
+padding:0 18px;height:100%;display:flex;align-items:center;flex-shrink:0}
+.dirWrap{flex:1;overflow:hidden;position:relative;height:100%}
+.dir{position:absolute;white-space:nowrap;font-size:20px;line-height:70px;
+padding-left:100%;animation:scroll 20s linear infinite}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 
-.info{text-align:center;font-size:22px;margin:10px}
-.time{text-align:center;font-size:16px;opacity:.7}
-
+button{width:95%;margin:10px;padding:12px;font-size:18px}
+.info{text-align:center;font-size:22px;margin:8px}
 select{width:95%;margin:10px;font-size:18px;background:#000;color:#fff}
-option.end{color:orange}
 
-ul{list-style:none;padding:0}
-li{padding:6px 12px;border-bottom:1px solid #222}
+ul{list-style:none;padding:0;margin:0}
+li{padding:8px 14px;border-bottom:1px solid #222}
 .current{color:#ff4d4d}
 .next{color:#6bff6b}
 .end{color:orange}
 
-button{width:95%;padding:10px;margin:10px;font-size:18px}
-
 #popup{
-position:fixed;bottom:20px;left:50%;
-transform:translateX(-50%);
-background:#ff9800;color:#000;
-padding:15px;border-radius:10px;
-font-size:14px;text-align:center;
-display:none;max-width:90%;
+position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+background:#ff9800;color:#000;padding:14px;border-radius:10px;
+font-size:14px;text-align:center;display:none;max-width:90%;
 }
+
+.time{text-align:center;font-size:15px;opacity:.7;margin:10px}
 </style>
 </head>
 
 <body>
 
 <div class="header">
- <div class="line">71</div>
- <div class="dir">кв. Зора – кв. Железник през Стадион Берое</div>
+  <div class="line">71</div>
+  <div class="dirWrap">
+    <div class="dir">кв. Зора – кв. Железник през Стадион Берое</div>
+  </div>
 </div>
 
 <button id="audioBtn">🔊 Включи звук</button>
@@ -57,6 +56,7 @@ display:none;max-width:90%;
 <div id="popup"></div>
 
 <script>
+/* ===== СПИРКИ (26) ===== */
 const stops=[
 {name:"Зора - Обръщало",lat:42.424226,lon:25.68831,file:"zora_obrushtalo"},
 {name:"Зора - 2",lat:42.4265,lon:25.6875,file:"zora_2"},
@@ -65,106 +65,173 @@ const stops=[
 {name:"Спирка",lat:42.4315,lon:25.683,file:"spirka"},
 {name:"СБА",lat:42.432,lon:25.682,file:"sba"},
 {name:"Спортна зала",lat:42.428153,lon:25.658405,file:"sportna_zala"},
+{name:"ДЗУ",lat:42.427892,lon:25.653642,file:"dzu"},
+{name:"Крайречен изток",lat:42.431329,lon:25.643576,file:"krairechen_iztok"},
+{name:"Техникуми север",lat:42.431909,lon:25.640756,file:"tehnikumi_sever"},
+{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,file:"kaufland_bedechka_iztok"},
+{name:"ПЗ Загорка запад",lat:42.441585,lon:25.633277,file:"pz_zagorka_zapad"},
+{name:"Мол Галерия",lat:42.43812,lon:25.631661,file:"mol_galeria"},
+{name:"ТД на НАП",lat:42.434237,lon:25.628527,file:"nap"},
+{name:"Кипарис",lat:42.431285,lon:25.620854,file:"kiparis"},
 {name:"Стадион Берое",lat:42.431219,lon:25.617108,file:"stadion_beroe"},
+{name:"Спортна 1",lat:42.428664,lon:25.616594,file:"sportna_1"},
+{name:"Млечна кухня",lat:42.426005,lon:25.61107,file:"mlechna_kuhnia"},
+{name:"Неолитни жилища",lat:42.424834,lon:25.609599,file:"neolitni_jilishta"},
+{name:"Три чучура",lat:42.4179,lon:25.605246,file:"tri_chuchura"},
+{name:"Железник изток 2",lat:42.415722,lon:25.599217,file:"jheleznik_iztok_2"},
+{name:"Железник изток 1",lat:42.414581,lon:25.596919,file:"jheleznik_iztok_1"},
+{name:"Железник РПУ",lat:42.412772,lon:25.592275,file:"jheleznik_rpu"},
+{name:"СОУ Железник",lat:42.412613,lon:25.586999,file:"sou_jheleznik"},
+{name:"Железник - 2",lat:42.410353,lon:25.587765,file:"jheleznik_2"},
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
 ];
 
-const STOP_R=0.00009, NEXT_R=0.000045;
-let cur=0, end=stops.length-1;
-let audio=false, stopDone=false, nextDone=false;
-let popupInt=null, popupLang=true;
+/* ===== НАСТРОЙКИ ===== */
+const CURRENT_RADIUS = 0.00009; // ~10 м (приближаване)
+const LEAVE_RADIUS   = 0.000045; // ~5 м (напускане)
 
+let cur=0;
+let end=stops.length-1;
+let audioOn=false;
+let stopDone=false;
+let nextDone=false;
+let popupTimer=null;
+let popupBg=true;
+
+const route=document.getElementById("route");
+const select=document.getElementById("endSelect");
+const label=document.getElementById("label");
+const currentStop=document.getElementById("currentStop");
 const popup=document.getElementById("popup");
 
+/* ===== АУДИО ===== */
 function playSeq(arr){
- let i=0; const a=new Audio(arr[0]);
+ let i=0;
+ const a=new Audio(arr[0]);
  a.onended=()=>{i++; if(i<arr.length){a.src=arr[i];a.play();}};
  a.play();
 }
 
 document.getElementById("audioBtn").onclick=()=>{
- audio=true;
- playSeq(["line.mp3","71.mp3","direction.mp3","zora_jheleznik_stadion_beroe.mp3"]);
+ if(audioOn) return;
+ audioOn=true;
+ playSeq([
+  "line.mp3",
+  "71.mp3",
+  "direction.mp3",
+  "zora_jheleznik_stadion_beroe.mp3"
+ ]);
 };
 
+/* ===== POPUP ===== */
 function showPopup(){
  popup.style.display="block";
- popupInt=setInterval(()=>{
-  popup.textContent=popupLang
-   ?"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ СИГНАЛИЗИРАЙТЕ НА ШОФЬОРА С БУТОН „СТОП“ ИЛИ „ВРАТА“."
+ popupTimer=setInterval(()=>{
+  popup.textContent = popupBg
+   ?"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ НЕ ЗАБРАВЯЙТЕ ДА СИГНАЛИЗИРАТЕ НА ШОФЬОРА КАТО НАТИСНЕТЕ БУТОНА „СТОП“ ИЛИ „ВРАТА“."
    :"THE NEXT STOP IS YOURS. PLEASE SIGNAL THE DRIVER USING THE STOP OR DOOR BUTTON.";
-  popupLang=!popupLang;
+  popupBg=!popupBg;
  },7000);
 }
 
 function hidePopup(){
- clearInterval(popupInt);
+ clearInterval(popupTimer);
  popup.style.display="none";
 }
 
+/* ===== UI ===== */
 function render(){
- const ul=document.getElementById("route");
- const sel=document.getElementById("endSelect");
- ul.innerHTML=""; sel.innerHTML="";
- for(let i=cur;i<stops.length;i++){
+ route.innerHTML="";
+ select.innerHTML="";
+ for(let i=cur;i<=end;i++){
   const li=document.createElement("li");
   li.textContent=stops[i].name;
   if(i===cur)li.className="current";
   if(i===cur+1)li.className="next";
   if(i===end)li.className="end";
-  ul.appendChild(li);
+  route.appendChild(li);
 
   const o=document.createElement("option");
   o.value=i;o.textContent=stops[i].name;
-  if(i===end)o.className="end";
-  sel.appendChild(o);
+  if(i===end)o.style.color="orange";
+  select.appendChild(o);
  }
- document.getElementById("currentStop").textContent=stops[cur].name;
+ currentStop.textContent=stops[cur].name;
 }
 
-document.getElementById("endSelect").onchange=e=>{
+select.onchange=e=>{
  end=+e.target.value;
  render();
 };
 
 render();
 
+/* ===== GPS ЛОГИКА (ТОЧНО КАКТО ПОИСКА) ===== */
 navigator.geolocation.watchPosition(pos=>{
- const h={lat:pos.coords.latitude,lon:pos.coords.longitude};
+ const here={lat:pos.coords.latitude,lon:pos.coords.longitude};
 
- const dStop=Math.hypot(h.lat-stops[cur].lat,h.lon-stops[cur].lon);
- if(dStop<STOP_R && !stopDone){
-  stopDone=true; nextDone=false;
-  if(audio){
+ // Приближаване → текуща спирка (≤10 м)
+ const dCur=Math.hypot(
+  here.lat-stops[cur].lat,
+  here.lon-stops[cur].lon
+ );
+
+ if(dCur<=CURRENT_RADIUS && !stopDone){
+  stopDone=true;
+  nextDone=false;
+  label.textContent="Спирка / Bus stop";
+
+  if(audioOn){
    const seq=["stop.mp3",stops[cur].file+".mp3"];
-   if(cur===end)seq.push("your_stop.mp3");
+   if(cur===end) seq.push("your_stop.mp3");
    playSeq(seq);
   }
   hidePopup();
  }
 
- const n=cur+1;
- if(n<=end){
-  const dNext=Math.hypot(h.lat-stops[n].lat,h.lon-stops[n].lon);
-  if(dNext<NEXT_R && !nextDone){
+ // Напускане → следваща спирка (≥5 м след текущата)
+ if(dCur>=LEAVE_RADIUS && stopDone){
+  const next=cur+1;
+  if(next<=end && !nextDone){
    nextDone=true;
-   const seq=["next_stop.mp3",stops[n].file+".mp3"];
-   if(n===end){seq.push("your_stop.mp3"); showPopup();}
-   if(audio)playSeq(seq);
-   cur=n; stopDone=false;
+   cur=next;
+   label.textContent="Следваща спирка / Next stop";
+
+   if(audioOn){
+    const seq=["next_stop.mp3",stops[cur].file+".mp3"];
+    if(cur===end){
+     seq.push("your_stop.mp3");
+     showPopup();
+    }
+    playSeq(seq);
+   }
+   stopDone=false;
    render();
   }
  }
-},{},{enableHighAccuracy:true});
+},
+err=>console.warn(err.message),
+{enableHighAccuracy:true});
 
+/* ===== ДАТА / ЧАС ===== */
 setInterval(()=>{
- document.getElementById("time").textContent=
- new Date().toLocaleString("bg-BG",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+ document.getElementById("time").textContent =
+ new Date().toLocaleString("bg-BG",{
+  weekday:"long",
+  day:"2-digit",
+  month:"2-digit",
+  year:"numeric",
+  hour:"2-digit",
+  minute:"2-digit"
+ });
 },1000);
 </script>
 
 </body>
 </html>
+
+
+
 
 
 
