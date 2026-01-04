@@ -1,196 +1,186 @@
-
 <!DOCTYPE html>
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STARA ZAGORA SPEECH</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{margin:0;font-family:Arial;background:#000;color:#fff}
-.project{text-align:center;background:#111;padding:6px;font-size:14px}
-.project strong{color:#ff9800}
-.dayBox{text-align:center;font-size:26px;font-weight:bold;margin:6px 0}
-
-.header{display:flex;align-items:center;height:70px;overflow:hidden}
-.line{background:#0a7d13;font-size:42px;font-weight:bold;padding:0 18px;height:100%;display:flex;align-items:center}
-.dirWrap{flex:1;overflow:hidden;position:relative;height:100%}
-.dir{position:absolute;white-space:nowrap;font-size:20px;line-height:70px;padding-left:100%;animation:scroll 20s linear infinite}
-@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
-
-button,select{width:95%;margin:10px;padding:12px;font-size:18px;background:#000;color:#fff}
-.info{text-align:center;font-size:22px;margin:8px}
-
-ul{list-style:none;padding:0;margin:0}
-li{padding:8px 14px;border-bottom:1px solid #222}
-.current{color:#ff4d4d}
-.next{color:#6bff6b}
-.end{color:orange}
-
-#popup{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-background:#ff9800;color:#000;padding:14px;border-radius:10px;
-font-size:14px;text-align:center;display:none;max-width:90%}
-
-#gpsLost{text-align:center;color:#ff9800;display:none;font-size:18px}
+body {
+    margin:0;
+    background:black;
+    color:white;
+    font-family:Arial, Helvetica, sans-serif;
+}
+header {
+    text-align:center;
+    padding:10px;
+}
+h1 {
+    color:orange;
+    margin:5px 0;
+}
+#line {
+    display:flex;
+    align-items:center;
+    padding:10px;
+}
+#lineNumber {
+    background:green;
+    color:white;
+    font-size:48px;
+    width:90px;
+    text-align:center;
+}
+#directionText {
+    margin-left:10px;
+    font-size:18px;
+}
+button {
+    width:90%;
+    margin:10px auto;
+    display:block;
+    padding:12px;
+    font-size:18px;
+}
+select {
+    width:90%;
+    margin:10px auto;
+    display:block;
+    padding:10px;
+    font-size:16px;
+}
+.stop {
+    padding:8px 12px;
+    border-bottom:1px solid #333;
+}
+.current { color:lime; }
+.next { color:yellow; }
+.target { color:orange; font-weight:bold; }
+#popup {
+    position:fixed;
+    bottom:20px;
+    left:10%;
+    width:80%;
+    background:orange;
+    color:black;
+    padding:15px;
+    text-align:center;
+    display:none;
+}
 </style>
 </head>
 
 <body>
 
-<div class="project">
- <strong>STARA ZAGORA SPEECH</strong><br>
- Автор: Кирил Кирилов · E-mail: ivanovkiko72@gmail.com
+<header>
+<h1>STARA ZAGORA SPEECH</h1>
+<div>Автор: Кирил Кирилов · E-mail: ivanovkiko72@gmail.com</div>
+<div id="date"></div>
+</header>
+
+<div id="line">
+<div id="lineNumber">71</div>
+<div id="directionText">Изчакване на GPS...</div>
 </div>
 
-<div class="dayBox" id="dayBox"></div>
+<button onclick="enableSound()">🔊 Включи звук</button>
 
-<div class="header">
- <div class="line">71</div>
- <div class="dirWrap">
-  <div class="dir" id="dirText">Изчакване на GPS…</div>
- </div>
-</div>
+<select id="directionSelect" onchange="setDirection(this.value)">
+<option value="">Избери посока</option>
+<option value="zora_jheleznik">кв. Зора → кв. Железник през Стадион Берое</option>
+<option value="jheleznik_zora">кв. Железник → кв. Зора през Стадион Берое</option>
+</select>
 
-<button id="audioBtn">🔊 Включи звук</button>
+<select id="targetSelect"></select>
 
-<div id="gpsLost">GPS сигналът е изгубен / GPS signal lost</div>
-
-<div class="info" id="label">Спирка / Bus stop</div>
-<div class="info" id="currentStop"></div>
-
-<select id="endSelect"></select>
-<ul id="route"></ul>
+<div id="stops"></div>
 
 <div id="popup"></div>
 
 <script>
-/* ===== DAYS ===== */
+let soundEnabled=false;
+function play(name){
+ if(!soundEnabled) return;
+ new Audio(name+".mp3").play();
+}
+function enableSound(){
+ soundEnabled=true;
+ play("line"); play("71"); play("direction");
+}
+
 const daysBG=["Неделя","Понеделник","Вторник","Сряда","Четвъртък","Петък","Събота"];
 const daysEN=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-let dLang=true;
+let langBG=true;
+
 setInterval(()=>{
- const d=new Date(),i=d.getDay();
- dayBox.textContent=dLang?daysBG[i]:daysEN[i];
- dLang=!dLang;
+ let d=new Date();
+ let day=langBG?daysBG[d.getDay()]:daysEN[d.getDay()];
+ document.getElementById("date").innerText=
+ day+" "+d.toLocaleDateString()+" "+d.toLocaleTimeString();
+ langBG=!langBG;
 },3000);
 
-/* ===== AUDIO MAP ===== */
-const audioMap={
- "МБАЛ Проф.Ст.Киркович":"MBAL",
- "Спортна 2":"sportna_2",
- "Жабките":"jabkite",
- "Ремиза":"remiza",
- "ПЗ Загорка изток":"pz_zagorka_iztok",
- "Кауфланд Бедечка запад":"kaufland_bedecka_zapad",
- "Техникуми юг":"tehnicumi_yug",
- "Крайречен запад":"krayrechen_zapad",
- "ПГЕ Джон Атанасов":"djon",
- "Парк Мол":"park_mol"
+const routes={
+zora_jheleznik:[
+ {n:"Зора Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obryshtalo"},
+ {n:"Зора-2",lat:42.426617934886174,lon:25.688156168303106,a:"zora_2"},
+ {n:"Зора-1",lat:42.4280739478343,lon:25.687257189172037,a:"zora_1"},
+ {n:"МЕТРО Зора",lat:42.43085835562468,lon:25.68400551190838,a:"metro_zora"},
+ {n:"Спирка",lat:42.43031450621498,lon:25.679456828438195,a:"spirka"},
+ {n:"СБА",lat:42.4293443632923,lon:25.66388483224811,a:"sba"},
+ {n:"Парк Мол",lat:42.428566609565024,lon:25.661989546868977,a:"park_mol"},
+ {n:"Спортна зала",lat:42.42790847655722,lon:25.657457124769106,a:"sportna_zala"},
+ {n:"ДЗУ",lat:42.42777583509693,lon:25.654063214990664,a:"dzu"},
+ {n:"ПГЕ Джон Атанасов",lat:42.42602245403625,lon:25.647934452417676,a:"djon"},
+ {n:"Крайречен запад",lat:42.43038732482968,lon:25.64431017773987,a:"krayrechen_zapad"},
+ {n:"Техникуми юг",lat:42.431907893777385,lon:25.641183417456496,a:"tehnicumi_yug"},
+ {n:"Кауфланд Бедечка запад",lat:42.435652900337004,lon:25.63651386140321,a:"kaufland_bedecka_zapad"},
+ {n:"ПЗ Загорка изток",lat:42.441519411103954,lon:25.633409739947453,a:"pz_zagorka_iztok"},
+ {n:"Мол Галерия",lat:42.43969514305928,lon:25.63248500136876,a:"mall_galleria"},
+ {n:"Ремиза",lat:42.43737423072981,lon:25.631441352540957,a:"remiza"},
+ {n:"ТД на НАП",lat:42.43382332081409,lon:25.6282225306597,a:"nap"},
+ {n:"Жабките",lat:42.43125958525303,lon:25.62159087588618,a:"jabkite"},
+ {n:"Стадион Берое",lat:42.43073142193363,lon:25.617257953702808,a:"stadion_beroe"},
+ {n:"Спортна 2",lat:42.42790017238624,lon:25.615792016897736,a:"sportna_2"},
+ {n:"МБАЛ Проф. Ст. Киркович",lat:42.425927176018114,lon:25.612742765836824,a:"MBAL"},
+ {n:"Неолитни жилища",lat:42.423569866973175,lon:25.60918175989466,a:"neolit"},
+ {n:"Три чучура",lat:42.41786789045175,lon:25.605520202815075,a:"tri_chuchura"},
+ {n:"Железник изток 2",lat:42.41560809192034,lon:25.59917884604073,a:"jheleznik_iztok_2"},
+ {n:"Железник изток 1",lat:42.41463453104491,lon:25.595893515373795,a:"jheleznik_iztok_1"},
+ {n:"Железник РПУ",lat:42.41269718411499,lon:25.59228326189147,a:"jheleznik_rpu"},
+ {n:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik"},
+ {n:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2"},
+ {n:"Железник - обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo"}
+]
 };
-const audioFile=s=>(audioMap[s.name]||s.file)+".mp3";
 
-/* ===== ЗОРА → ЖЕЛЕЗНИК ===== */
-const forwardStops=[
-{name:"Зора Обръщало",lat:42.424226,lon:25.68831,file:"zora_obrushtalo"},
-{name:"Зора-2",lat:42.4265,lon:25.6875,file:"zora_2"},
-{name:"Зора-1",lat:42.4281,lon:25.686,file:"zora_1"},
-{name:"МЕТРО Зора",lat:42.43087,lon:25.68417,file:"metro_zora"},
-{name:"Спирка",lat:42.4315,lon:25.683,file:"spirka"},
-{name:"СБА",lat:42.432,lon:25.682,file:"sba"},
-{name:"Спортна зала",lat:42.428153,lon:25.658405,file:"sportna_zala"},
-{name:"ДЗУ",lat:42.427892,lon:25.653642,file:"dzu"},
-{name:"Крайречен изток",lat:42.431329,lon:25.643576,file:"krairechen_iztok"},
-{name:"Техникуми север",lat:42.431909,lon:25.640756,file:"tehnikumi_sever"},
-{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,file:"kaufland_bedecka_iztok"},
-{name:"ПЗ Загорка запад",lat:42.441585,lon:25.633277,file:"pz_zagorka_zapad"},
-{name:"Мол Галерия",lat:42.43812,lon:25.631661,file:"mol_galeria"},
-{name:"ТД на НАП",lat:42.434237,lon:25.628527,file:"nap"},
-{name:"Кипарис",lat:42.431285,lon:25.620854,file:"kiparis"},
-{name:"Стадион Берое",lat:42.431219,lon:25.617108,file:"stadion_beroe"},
-{name:"Спортна 1",lat:42.428664,lon:25.616594,file:"sportna_1"},
-{name:"Млечна кухня",lat:42.426005,lon:25.61107,file:"mlechna_kuhnia"},
-{name:"Неолитни жилища",lat:42.424834,lon:25.609599,file:"neolitni_jilishta"},
-{name:"Три чучура",lat:42.4179,lon:25.605246,file:"tri_chuchura"},
-{name:"Железник изток 2",lat:42.415722,lon:25.599217,file:"jheleznik_iztok_2"},
-{name:"Железник изток 1",lat:42.414581,lon:25.596919,file:"jheleznik_iztok_1"},
-{name:"Железник РПУ",lat:42.412772,lon:25.592275,file:"jheleznik_rpu"},
-{name:"СОУ Железник",lat:42.412613,lon:25.586999,file:"sou_jheleznik"},
-{name:"Железник - 2",lat:42.410353,lon:25.587765,file:"jheleznik_2"},
-{name:"Железник - обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
-];
-
-/* ===== ЖЕЛЕЗНИК → ЗОРА (ТВОИТЕ) ===== */
-const reverseStops=[/* … остава както ти го дадох преди, НЕ Е ПРОМЕНЯН … */];
-
-let stops=[],cur=0,end=0,audio=false;
-const CURRENT_RADIUS=0.00009,LEAVE_RADIUS=0.000045;
-let lastGPS=Date.now();
-
-/* AUDIO */
-function playSeq(a){
- let i=0,x=new Audio(a[0]);
- x.onended=()=>{i++;if(i<a.length){x.src=a[i];x.play();}};
- x.play();
+let activeRoute=[];
+function setDirection(dir){
+ activeRoute=routes[dir];
+ renderStops();
 }
-audioBtn.onclick=()=>{
- if(audio)return;
- audio=true;
- playSeq(["line.mp3","71.mp3",
-  stops===forwardStops?"direction_forward.mp3":"direction_reverse.mp3"]);
-};
 
-/* UI */
-function render(){
- route.innerHTML="";endSelect.innerHTML="";
- for(let i=cur;i<=end;i++){
-  let li=document.createElement("li");
-  li.textContent=stops[i].name;
-  if(i===cur)li.className="current";
-  if(i===cur+1)li.className="next";
-  if(i===end)li.className="end";
-  route.appendChild(li);
-
+function renderStops(){
+ const c=document.getElementById("stops");
+ const t=document.getElementById("targetSelect");
+ c.innerHTML=""; t.innerHTML="<option>Избери крайна спирка</option>";
+ activeRoute.forEach((s,i)=>{
+  let d=document.createElement("div");
+  d.className="stop";
+  d.innerText=s.n;
+  c.appendChild(d);
   let o=document.createElement("option");
-  o.value=i;o.textContent=stops[i].name;
-  if(i===end)o.style.color="orange";
-  endSelect.appendChild(o);
- }
- currentStop.textContent=stops[cur]?.name||"";
+  o.value=i; o.text=s.n;
+  t.appendChild(o);
+ });
 }
-endSelect.onchange=e=>{end=+e.target.value;render();};
 
-/* GPS */
-navigator.geolocation.watchPosition(p=>{
- lastGPS=Date.now(); gpsLost.style.display="none";
-
- if(!stops.length){
-  stops=p.coords.latitude<42.42?reverseStops:forwardStops;
-  dirText.textContent=stops===forwardStops
-   ?"кв. Зора – кв. Железник през Стадион Берое"
-   :"кв. Железник – кв. Зора през Стадион Берое";
-  cur=0;end=stops.length-1;render();
- }
-
- let d=Math.hypot(
-  p.coords.latitude-stops[cur].lat,
-  p.coords.longitude-stops[cur].lon);
-
- if(d<=CURRENT_RADIUS && audio){
-  playSeq(["stop.mp3",audioFile(stops[cur])]);
- }
- if(d>=LEAVE_RADIUS && cur<end){
-  cur++;render();
-  if(audio)playSeq(["next_stop.mp3",audioFile(stops[cur])]);
- }
-},{enableHighAccuracy:true});
-
-setInterval(()=>{
- if(Date.now()-lastGPS>8000)gpsLost.style.display="block";
-},2000);
 </script>
-
 </body>
 </html>
+
+
 
 
 
