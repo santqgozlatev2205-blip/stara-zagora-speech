@@ -38,8 +38,8 @@ padding:15px;display:none;text-align:center;font-weight:bold}
 
 <select id="directionSelect">
 <option value="">Избери посока</option>
-<option value="zora_jheleznik">кв. Зора → кв. Железник през Стадион Берое</option>
-<option value="jheleznik_zora">кв. Железник → кв. Зора през Стадион Берое</option>
+<option value="zora_jheleznik_beroe">кв. Зора → кв. Железник през Стадион Берое</option>
+<option value="jheleznik_zora_beroe">кв. Железник → кв. Зора през Стадион Берое</option>
 </select>
 
 <select id="targetSelect"></select>
@@ -72,64 +72,64 @@ setInterval(()=>{
 },3000);
 
 const routes={
-zora_jheleznik:[
-{name:"Зора - Обръщало",lat:42.424226,lon:25.68831,a:"zora_obryshtalo"},
-{name:"Зора - 2",lat:42.4265,lon:25.6875,a:"zora_2"},
-{name:"Зора - 1",lat:42.4281,lon:25.686,a:"zora_1"},
-{name:"Метро Зора",lat:42.43087,lon:25.68417,a:"metro_zora"},
-{name:"Спирка",lat:42.4315,lon:25.683,a:"spirka"},
-{name:"СБА",lat:42.432,lon:25.682,a:"sba"},
-{name:"Спортна зала",lat:42.428153,lon:25.658405,a:"sportna_zala"},
-{name:"ДЗУ",lat:42.427892,lon:25.653642,a:"dzu"},
-{name:"Крайречен изток",lat:42.431329,lon:25.643576,a:"krayrechen_iztok"},
-{name:"Техникуми север",lat:42.431909,lon:25.640756,a:"tehnicumi_sever"},
-{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,a:"kaufland_bedecka_iztok"},
-{name:"ПЗ Загорка запад",lat:42.441585,lon:25.633277,a:"pz_zagorka_zapad"},
-{name:"Мол Галерия",lat:42.43812,lon:25.631661,a:"mall_galleria"},
-{name:"ТД на НАП",lat:42.434237,lon:25.628527,a:"nap"},
-{name:"Кипарис",lat:42.431285,lon:25.620854,a:"kiparis"},
-{name:"Стадион Берое",lat:42.431219,lon:25.617108,a:"stadion_beroe"},
-{name:"Спортна 1",lat:42.428664,lon:25.616594,a:"sportna_1"},
-{name:"Млечна кухня",lat:42.426005,lon:25.61107,a:"mlechna"},
-{name:"Неолитни жилища",lat:42.424834,lon:25.609599,a:"neolit"},
+zora_jheleznik_beroe:[
+{name:"Зора - Обръщало",lat:42.424226,lon:25.68831,a:"zora_obryshtalo.mp3"},
+{name:"Зора - 2",lat:42.4265,lon:25.6875,a:"zora_2.mp3"},
+{name:"Зора - 1",lat:42.4281,lon:25.686,a:"zora_1.mp3"},
+{name:"Метро Зора",lat:42.43087,lon:25.68417,a:"metro_zora.mp3"},
+{name:"Спирка",lat:42.4315,lon:25.683,a:"spirka.mp3"},
+{name:"СБА",lat:42.432,lon:25.682,a:"sba.mp3"},
+{name:"Спортна зала",lat:42.428153,lon:25.658405,a:"sportna_zala.mp3"},
+{name:"ДЗУ",lat:42.427892,lon:25.653642,a:"dzu.mp3"},
+{name:"Крайречен изток",lat:42.431329,lon:25.643576,a:"krayrechen_iztok.mp3"},
+{name:"Техникуми север",lat:42.431909,lon:25.640756,a:"tehnicumi_sever.mp3"},
+{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,a:"kaufland_bedecka_iztok.mp3"},
+{name:"ПЗ Загорка запад",lat:42.441585,lon:25.633277,a:"pz_zagorka_zapad.mp3"},
+{name:"Мол Галерия",lat:42.43812,lon:25.631661,a:"mall_galleria.mp3"},
+{name:"ТД на НАП",lat:42.434237,lon:25.628527,a:"nap.mp3"},
+{name:"Кипарис",lat:42.431285,lon:25.620854,a:"kiparis.mp3"},
+{name:"Стадион Берое",lat:42.431219,lon:25.617108,a:"stadion_beroe.mp3"},
+{name:"Спортна 1",lat:42.428664,lon:25.616594,a:"sportna_1.mp3"},
+{name:"Млечна кухня",lat:42.426005,lon:25.61107,a:"mlechna_kuhnya.mp3"},
+{name:"Неолитни жилища",lat:42.424834,lon:25.609599,a:"neolitni_jilishta.mp3"},
 {name:"Три чучура",lat:42.4179,lon:25.605246,a:"tri_chuchura"},
-{name:"Железник изток 2",lat:42.415722,lon:25.599217,a:"jheleznik_iztok_2"},
-{name:"Железник изток 1",lat:42.414581,lon:25.596919,a:"jheleznik_iztok_1"},
-{name:"Железник РПУ",lat:42.412772,lon:25.592275,a:"jheleznik_rpu"},
-{name:"СОУ Железник",lat:42.412613,lon:25.586999,a:"sou_jheleznik"},
-{name:"Железник - 2",lat:42.410353,lon:25.587765,a:"jheleznik_2"},
-{name:"Железник - Обръщало",lat:42.410706,lon:25.592148,a:"jheleznik_obryshtalo"}
+{name:"Железник изток 2",lat:42.415722,lon:25.599217,a:"jheleznik_iztok_2.mp3"},
+{name:"Железник изток 1",lat:42.414581,lon:25.596919,a:"jheleznik_iztok_1.mp3"},
+{name:"Железник РПУ",lat:42.412772,lon:25.592275,a:"jheleznik_rpu.mp3"},
+{name:"СОУ Железник",lat:42.412613,lon:25.586999,a:"sou_jheleznik.mp3"},
+{name:"Железник - 2",lat:42.410353,lon:25.587765,a:"jheleznik_2.mp3"},
+{name:"Железник - Обръщало",lat:42.410706,lon:25.592148,a:"jheleznik_obryshtalo.mp3"}
 ],
 jheleznik_zora:[
-{name:"Железник - Обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo"},
-{name:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2"},
-{name:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik"},
-{name:"Железник РПУ",lat:42.41269718411499,lon:25.59228326189147,a:"jheleznik_rpu"},
-{name:"Железник изток 1",lat:42.41463453104491,lon:25.595893515373795,a:"jheleznik_iztok_1"},
-{name:"Железник изток 2",lat:42.41560809192034,lon:25.59917884604073,a:"jheleznik_iztok_2"},
-{name:"Три чучура",lat:42.41786789045175,lon:25.605520202815075,a:"tri_chuchura"},
-{name:"Неолитни жилища",lat:42.423569866973175,lon:25.60918175989466,a:"neolit"},
-{name:"МБАЛ Проф. Ст. Киркович",lat:42.425927176018114,lon:25.612742765836824,a:"MBAL"},
-{name:"Спортна 2",lat:42.42790017238624,lon:25.615792016897736,a:"sportna_2"},
-{name:"Стадион Берое",lat:42.43073142193363,lon:25.617257953702808,a:"stadion_beroe"},
-{name:"Жабките",lat:42.43125958525303,lon:25.62159087588618,a:"jabkite"},
-{name:"ТД на НАП",lat:42.43382332081409,lon:25.6282225306597,a:"nap"},
-{name:"Ремиза",lat:42.43737423072981,lon:25.631441352540957,a:"remiza"},
-{name:"Мол Галерия",lat:42.43969514305928,lon:25.63248500136876,a:"mall_galleria"},
-{name:"ПЗ Загорка изток",lat:42.441519411103954,lon:25.633409739947453,a:"pz_zagorka_iztok"},
-{name:"Кауфланд Бедечка запад",lat:42.435652900337004,lon:25.63651386140321,a:"kaufland_bedecka_zapad"},
-{name:"Техникуми юг",lat:42.431907893777385,lon:25.641183417456496,a:"tehnicumi_yug"},
-{name:"Крайречен запад",lat:42.43038732482968,lon:25.64431017773987,a:"krayrechen_zapad"},
-{name:"ПГЕ Джон Атанасов",lat:42.42602245403625,lon:25.647934452417676,a:"djon"},
-{name:"ДЗУ",lat:42.42777583509693,lon:25.654063214990664,a:"dzu"},
-{name:"Спортна зала",lat:42.42790847655722,lon:25.657457124769106,a:"sportna_zala"},
-{name:"Парк Мол",lat:42.428566609565024,lon:25.661989546868977,a:"park_mol"},
-{name:"СБА",lat:42.4293443632923,lon:25.66388483224811,a:"sba"},
-{name:"Спирка",lat:42.43031450621498,lon:25.679456828438195,a:"spirka"},
-{name:"Метро Зора",lat:42.43085835562468,lon:25.68400551190838,a:"metro_zora"},
-{name:"Зора - 1",lat:42.4280739478343,lon:25.687257189172037,a:"zora_1"},
-{name:"Зора - 2",lat:42.426617934886174,lon:25.688156168303106,a:"zora_2"},
-{name:"Зора - Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obryshtalo"}
+{name:"Железник - Обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo.mp3"},
+{name:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2.mp3"},
+{name:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik.mp3"},
+{name:"Железник РПУ",lat:42.41269718411499,lon:25.59228326189147,a:"jheleznik_rpu.mp3"},
+{name:"Железник изток 1",lat:42.41463453104491,lon:25.595893515373795,a:"jheleznik_iztok_1.mp3"},
+{name:"Железник изток 2",lat:42.41560809192034,lon:25.59917884604073,a:"jheleznik_iztok_2.mp3"},
+{name:"Три чучура",lat:42.41786789045175,lon:25.605520202815075,a:"tri_chuchura.mp3"},
+{name:"Неолитни жилища",lat:42.423569866973175,lon:25.60918175989466,a:"neolitni_jilishta.mp3"},
+{name:"МБАЛ Проф. Ст. Киркович",lat:42.425927176018114,lon:25.612742765836824,a:"MBAL.mp3"},
+{name:"Спортна 2",lat:42.42790017238624,lon:25.615792016897736,a:"sportna_2.mp3"},
+{name:"Стадион Берое",lat:42.43073142193363,lon:25.617257953702808,a:"stadion_beroe.mp3"},
+{name:"Жабките",lat:42.43125958525303,lon:25.62159087588618,a:"jabkite.mp3"},
+{name:"ТД на НАП",lat:42.43382332081409,lon:25.6282225306597,a:"nap.mp3"},
+{name:"Ремиза",lat:42.43737423072981,lon:25.631441352540957,a:"remiza.mp3"},
+{name:"Мол Галерия",lat:42.43969514305928,lon:25.63248500136876,a:"mall_galleria.mp3"},
+{name:"ПЗ Загорка изток",lat:42.441519411103954,lon:25.633409739947453,a:"pz_zagorka_iztok.mp3"},
+{name:"Кауфланд Бедечка запад",lat:42.435652900337004,lon:25.63651386140321,a:"kaufland_bedecka_zapad.mp3"},
+{name:"Техникуми юг",lat:42.431907893777385,lon:25.641183417456496,a:"tehnicumi_yug.mp3"},
+{name:"Крайречен запад",lat:42.43038732482968,lon:25.64431017773987,a:"krayrechen_zapad.mp3"},
+{name:"ПГЕ Джон Атанасов",lat:42.42602245403625,lon:25.647934452417676,a:"djon.mp3"},
+{name:"ДЗУ",lat:42.42777583509693,lon:25.654063214990664,a:"dzu.mp3"},
+{name:"Спортна зала",lat:42.42790847655722,lon:25.657457124769106,a:"sportna_zala.mp3"},
+{name:"Парк Мол",lat:42.428566609565024,lon:25.661989546868977,a:"park_mol.mp3"},
+{name:"СБА",lat:42.4293443632923,lon:25.66388483224811,a:"sba.mp3"},
+{name:"Спирка",lat:42.43031450621498,lon:25.679456828438195,a:"spirka.mp3"},
+{name:"Метро Зора",lat:42.43085835562468,lon:25.68400551190838,a:"metro_zora.mp3"},
+{name:"Зора - 1",lat:42.4280739478343,lon:25.687257189172037,a:"zora_1.mp3"},
+{name:"Зора - 2",lat:42.426617934886174,lon:25.688156168303106,a:"zora_2.mp3"},
+{name:"Зора - Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obryshtalo.mp3"}
 ]
 
 };
@@ -271,6 +271,7 @@ setInterval(()=>{
 
 </body>
 </html>
+
 
 
 
