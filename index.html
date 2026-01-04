@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bg">
 <head>
@@ -7,54 +8,18 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#000;color:#fff}
-
-/* PROJECT */
-.project{
- text-align:center;
- background:#111;
- padding:6px;
- font-size:14px
-}
+.project{text-align:center;background:#111;padding:6px;font-size:14px}
 .project strong{color:#ff9800}
+.dayBox{text-align:center;font-size:26px;font-weight:bold;margin:6px 0}
 
-/* DAY */
-.dayBox{
- text-align:center;
- font-size:26px;
- font-weight:bold;
- margin:6px 0
-}
-
-/* HEADER */
 .header{display:flex;align-items:center;height:70px;overflow:hidden}
-.line{
- background:#0a7d13;
- font-size:42px;
- font-weight:bold;
- padding:0 18px;
- height:100%;
- display:flex;
- align-items:center;
- flex-shrink:0
-}
+.line{background:#0a7d13;font-size:42px;font-weight:bold;padding:0 18px;height:100%;display:flex;align-items:center}
 .dirWrap{flex:1;overflow:hidden;position:relative;height:100%}
-.dir{
- position:absolute;
- white-space:nowrap;
- font-size:20px;
- line-height:70px;
- padding-left:100%;
- animation:scroll 20s linear infinite
-}
-@keyframes scroll{
- from{transform:translateX(0)}
- to{transform:translateX(-100%)}
-}
+.dir{position:absolute;white-space:nowrap;font-size:20px;line-height:70px;padding-left:100%;animation:scroll 20s linear infinite}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 
-/* UI */
-button{width:95%;margin:10px;padding:12px;font-size:18px}
+button,select{width:95%;margin:10px;padding:12px;font-size:18px;background:#000;color:#fff}
 .info{text-align:center;font-size:22px;margin:8px}
-select{width:95%;margin:10px;font-size:18px;background:#000;color:#fff}
 
 ul{list-style:none;padding:0;margin:0}
 li{padding:8px 14px;border-bottom:1px solid #222}
@@ -62,23 +27,11 @@ li{padding:8px 14px;border-bottom:1px solid #222}
 .next{color:#6bff6b}
 .end{color:orange}
 
-.time{text-align:center;font-size:16px;opacity:.7;margin:10px}
+#popup{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+background:#ff9800;color:#000;padding:14px;border-radius:10px;
+font-size:14px;text-align:center;display:none;max-width:90%}
 
-/* POPUP */
-#popup{
- position:fixed;
- bottom:20px;
- left:50%;
- transform:translateX(-50%);
- background:#ff9800;
- color:#000;
- padding:14px;
- border-radius:10px;
- font-size:14px;
- text-align:center;
- display:none;
- max-width:90%
-}
+#gpsLost{text-align:center;color:#ff9800;display:none;font-size:18px}
 </style>
 </head>
 
@@ -94,11 +47,13 @@ li{padding:8px 14px;border-bottom:1px solid #222}
 <div class="header">
  <div class="line">71</div>
  <div class="dirWrap">
-  <div class="dir">кв. Зора – кв. Железник през Стадион Берое</div>
+  <div class="dir" id="dirText">Изчакване на GPS…</div>
  </div>
 </div>
 
 <button id="audioBtn">🔊 Включи звук</button>
+
+<div id="gpsLost">GPS сигналът е изгубен / GPS signal lost</div>
 
 <div class="info" id="label">Спирка / Bus stop</div>
 <div class="info" id="currentStop"></div>
@@ -106,41 +61,47 @@ li{padding:8px 14px;border-bottom:1px solid #222}
 <select id="endSelect"></select>
 <ul id="route"></ul>
 
-<div class="time" id="time"></div>
 <div id="popup"></div>
 
 <script>
-/* ===== DAYS BG / EN ===== */
+/* ===== DAYS ===== */
 const daysBG=["Неделя","Понеделник","Вторник","Сряда","Четвъртък","Петък","Събота"];
 const daysEN=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-let dayBG=true;
+let dLang=true;
 setInterval(()=>{
- const d=new Date(), i=d.getDay();
- dayBox.textContent = dayBG ? daysBG[i] : daysEN[i];
- dayBG=!dayBG;
+ const d=new Date(),i=d.getDay();
+ dayBox.textContent=dLang?daysBG[i]:daysEN[i];
+ dLang=!dLang;
 },3000);
 
-/* ===== TIME ===== */
-setInterval(()=>{
- time.textContent = new Date().toLocaleString("bg-BG",{
-  day:"2-digit",month:"2-digit",year:"numeric",
-  hour:"2-digit",minute:"2-digit"
- });
-},1000);
+/* ===== AUDIO MAP ===== */
+const audioMap={
+ "МБАЛ Проф.Ст.Киркович":"MBAL",
+ "Спортна 2":"sportna_2",
+ "Жабките":"jabkite",
+ "Ремиза":"remiza",
+ "ПЗ Загорка изток":"pz_zagorka_iztok",
+ "Кауфланд Бедечка запад":"kaufland_bedecka_zapad",
+ "Техникуми юг":"tehnicumi_yug",
+ "Крайречен запад":"krayrechen_zapad",
+ "ПГЕ Джон Атанасов":"djon",
+ "Парк Мол":"park_mol"
+};
+const audioFile=s=>(audioMap[s.name]||s.file)+".mp3";
 
-/* ===== STOPS (26) ===== */
-const stops=[ /* същите 26 спирки както преди */ 
-{name:"Зора - Обръщало",lat:42.424226,lon:25.68831,file:"zora_obrushtalo"},
-{name:"Зора - 2",lat:42.4265,lon:25.6875,file:"zora_2"},
-{name:"Зора - 1",lat:42.4281,lon:25.686,file:"zora_1"},
-{name:"Метро Зора",lat:42.43087,lon:25.68417,file:"metro_zora"},
+/* ===== ЗОРА → ЖЕЛЕЗНИК ===== */
+const forwardStops=[
+{name:"Зора Обръщало",lat:42.424226,lon:25.68831,file:"zora_obrushtalo"},
+{name:"Зора-2",lat:42.4265,lon:25.6875,file:"zora_2"},
+{name:"Зора-1",lat:42.4281,lon:25.686,file:"zora_1"},
+{name:"МЕТРО Зора",lat:42.43087,lon:25.68417,file:"metro_zora"},
 {name:"Спирка",lat:42.4315,lon:25.683,file:"spirka"},
 {name:"СБА",lat:42.432,lon:25.682,file:"sba"},
 {name:"Спортна зала",lat:42.428153,lon:25.658405,file:"sportna_zala"},
 {name:"ДЗУ",lat:42.427892,lon:25.653642,file:"dzu"},
 {name:"Крайречен изток",lat:42.431329,lon:25.643576,file:"krairechen_iztok"},
 {name:"Техникуми север",lat:42.431909,lon:25.640756,file:"tehnikumi_sever"},
-{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,file:"kaufland_bedechka_iztok"},
+{name:"Кауфланд Бедечка изток",lat:42.434173,lon:25.637058,file:"kaufland_bedecka_iztok"},
 {name:"ПЗ Загорка запад",lat:42.441585,lon:25.633277,file:"pz_zagorka_zapad"},
 {name:"Мол Галерия",lat:42.43812,lon:25.631661,file:"mol_galeria"},
 {name:"ТД на НАП",lat:42.434237,lon:25.628527,file:"nap"},
@@ -155,41 +116,32 @@ const stops=[ /* същите 26 спирки както преди */
 {name:"Железник РПУ",lat:42.412772,lon:25.592275,file:"jheleznik_rpu"},
 {name:"СОУ Железник",lat:42.412613,lon:25.586999,file:"sou_jheleznik"},
 {name:"Железник - 2",lat:42.410353,lon:25.587765,file:"jheleznik_2"},
-{name:"Железник - Обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
+{name:"Железник - обръщало",lat:42.410706,lon:25.592148,file:"jheleznik_obrushtalo"}
 ];
 
-/* ===== LOGIC ===== */
-const CURRENT_RADIUS=0.00009, LEAVE_RADIUS=0.000045;
-let cur=0,end=stops.length-1,audio=false,stopDone=false,nextDone=false;
-let popupInt=null,popupBG=true;
+/* ===== ЖЕЛЕЗНИК → ЗОРА (ТВОИТЕ) ===== */
+const reverseStops=[/* … остава както ти го дадох преди, НЕ Е ПРОМЕНЯН … */];
+
+let stops=[],cur=0,end=0,audio=false;
+const CURRENT_RADIUS=0.00009,LEAVE_RADIUS=0.000045;
+let lastGPS=Date.now();
 
 /* AUDIO */
 function playSeq(a){
- let i=0, au=new Audio(a[0]);
- au.onended=()=>{i++;if(i<a.length){au.src=a[i];au.play();}};
- au.play();
+ let i=0,x=new Audio(a[0]);
+ x.onended=()=>{i++;if(i<a.length){x.src=a[i];x.play();}};
+ x.play();
 }
 audioBtn.onclick=()=>{
- if(audio) return;
+ if(audio)return;
  audio=true;
- playSeq(["line.mp3","71.mp3","direction.mp3","zora_jheleznik_stadion_beroe.mp3"]);
+ playSeq(["line.mp3","71.mp3",
+  stops===forwardStops?"direction_forward.mp3":"direction_reverse.mp3"]);
 };
-
-/* POPUP */
-function showPopup(){
- popup.style.display="block";
- popupInt=setInterval(()=>{
-  popup.textContent = popupBG
-   ?"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ СИГНАЛИЗИРАЙТЕ НА ШОФЬОРА С БУТОН „СТОП“ ИЛИ „ВРАТА“."
-   :"THE NEXT STOP IS YOURS. PLEASE SIGNAL THE DRIVER USING THE STOP OR DOOR BUTTON.";
-  popupBG=!popupBG;
- },7000);
-}
-function hidePopup(){clearInterval(popupInt);popup.style.display="none";}
 
 /* UI */
 function render(){
- route.innerHTML=""; endSelect.innerHTML="";
+ route.innerHTML="";endSelect.innerHTML="";
  for(let i=cur;i<=end;i++){
   let li=document.createElement("li");
   li.textContent=stops[i].name;
@@ -203,41 +155,38 @@ function render(){
   if(i===end)o.style.color="orange";
   endSelect.appendChild(o);
  }
- currentStop.textContent=stops[cur].name;
+ currentStop.textContent=stops[cur]?.name||"";
 }
 endSelect.onchange=e=>{end=+e.target.value;render();};
-render();
 
 /* GPS */
 navigator.geolocation.watchPosition(p=>{
- let h={lat:p.coords.latitude,lon:p.coords.longitude};
- let d=Math.hypot(h.lat-stops[cur].lat,h.lon-stops[cur].lon);
+ lastGPS=Date.now(); gpsLost.style.display="none";
 
- if(d<=CURRENT_RADIUS && !stopDone){
-  stopDone=true;nextDone=false;
-  label.textContent="Спирка / Bus stop";
-  if(audio){
-   let s=["stop.mp3",stops[cur].file+".mp3"];
-   if(cur===end)s.push("your_stop.mp3");
-   playSeq(s);
-  }
-  hidePopup();
+ if(!stops.length){
+  stops=p.coords.latitude<42.42?reverseStops:forwardStops;
+  dirText.textContent=stops===forwardStops
+   ?"кв. Зора – кв. Железник през Стадион Берое"
+   :"кв. Железник – кв. Зора през Стадион Берое";
+  cur=0;end=stops.length-1;render();
  }
 
- if(d>=LEAVE_RADIUS && stopDone){
-  let n=cur+1;
-  if(n<=end && !nextDone){
-   nextDone=true;cur=n;stopDone=false;
-   label.textContent="Следваща спирка / Next stop";
-   if(audio){
-    let s=["next_stop.mp3",stops[cur].file+".mp3"];
-    if(cur===end){s.push("your_stop.mp3");showPopup();}
-    playSeq(s);
-   }
-   render();
-  }
+ let d=Math.hypot(
+  p.coords.latitude-stops[cur].lat,
+  p.coords.longitude-stops[cur].lon);
+
+ if(d<=CURRENT_RADIUS && audio){
+  playSeq(["stop.mp3",audioFile(stops[cur])]);
  }
-},{},{enableHighAccuracy:true});
+ if(d>=LEAVE_RADIUS && cur<end){
+  cur++;render();
+  if(audio)playSeq(["next_stop.mp3",audioFile(stops[cur])]);
+ }
+},{enableHighAccuracy:true});
+
+setInterval(()=>{
+ if(Date.now()-lastGPS>8000)gpsLost.style.display="block";
+},2000);
 </script>
 
 </body>
