@@ -4,24 +4,82 @@
 <meta charset="UTF-8">
 <title>STARA ZAGORA SPEECH</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{margin:0;background:#000;color:#fff;font-family:Arial}
+body{margin:0;background:black;color:white;font-family:Arial}
 header{text-align:center;padding:10px}
 h1{color:orange;margin:5px}
-#line{display:flex;align-items:center;padding:10px}
-#lineNumber{background:green;font-size:48px;width:90px;text-align:center}
-#directionText{margin-left:10px;font-size:18px}
-#status{text-align:center;font-size:20px;margin-top:10px}
-#stopName{text-align:center;font-size:22px;color:orange;margin-bottom:10px}
-button,select{width:90%;margin:10px auto;display:block;padding:10px;font-size:16px}
-.stop{padding:8px 12px;border-bottom:1px solid #333}
-.current{color:#00ff00}
-.next{color:#ffff00}
+
+#line{
+ display:flex;
+ align-items:center;
+ padding:10px;
+ overflow:hidden;
+}
+#lineNumber{
+ background:green;
+ font-size:48px;
+ width:90px;
+ text-align:center;
+ flex-shrink:0;
+}
+#directionWrap{
+ margin-left:10px;
+ overflow:hidden;
+ white-space:nowrap;
+ width:100%;
+}
+#directionText{
+ display:inline-block;
+ padding-left:100%;
+ animation:scroll 15s linear infinite;
+ font-size:18px;
+}
+
+@keyframes scroll{
+ from{transform:translateX(0)}
+ to{transform:translateX(-100%)}
+}
+
+#status{
+ text-align:center;
+ font-size:22px;
+ margin-top:10px;
+}
+#stopName{
+ text-align:center;
+ font-size:24px;
+ color:orange;
+ margin-bottom:10px;
+}
+
+select{
+ width:90%;
+ margin:10px auto;
+ display:block;
+ padding:10px;
+ font-size:16px;
+}
+
+.stop{
+ padding:8px 12px;
+ border-bottom:1px solid #333;
+}
+.current{color:red;font-weight:bold}
+.next{color:lime}
 .target{color:orange;font-weight:bold}
+
 #popup{
- position:fixed;bottom:20px;left:10%;width:80%;
- background:orange;color:#000;
- padding:15px;display:none;text-align:center;font-weight:bold
+ position:fixed;
+ bottom:20px;
+ left:10%;
+ width:80%;
+ background:orange;
+ color:black;
+ padding:15px;
+ display:none;
+ text-align:center;
+ font-weight:bold;
 }
 </style>
 </head>
@@ -30,19 +88,19 @@ button,select{width:90%;margin:10px auto;display:block;padding:10px;font-size:16
 
 <header>
 <h1>STARA ZAGORA SPEECH</h1>
-<div>Автор: Кирил Кирилов · E-mail: ivanovkiko72@gmail.com</div>
+<div>Автор: Кирил Кирилов · ivanovkiko72@gmail.com</div>
 <div id="date"></div>
 </header>
 
 <div id="line">
 <div id="lineNumber">71</div>
-<div id="directionText">Изчакване на GPS...</div>
+<div id="directionWrap">
+<div id="directionText">Изберете посока</div>
+</div>
 </div>
 
 <div id="status">—</div>
 <div id="stopName">—</div>
-
-<button onclick="enableSound()">🔊 Включи звук</button>
 
 <select id="directionSelect">
 <option value="">Избери посока</option>
@@ -56,28 +114,6 @@ button,select{width:90%;margin:10px auto;display:block;padding:10px;font-size:16
 <div id="popup"></div>
 
 <script>
-/* ---------------- ОБЩИ ---------------- */
-let soundEnabled=false;
-let active=[],currentIndex=-1,targetIndex=null;
-let popupTimer=null;
-
-function playSeq(files){
- if(!soundEnabled) return;
- let i=0;
- const next=()=>{
-  if(i>=files.length) return;
-  const a=new Audio(files[i++]+".mp3");
-  a.onended=next;
-  a.play();
- };
- next();
-}
-
-function enableSound(){
- soundEnabled=true;
- playSeq(["line","71","direction"]);
-}
-
 /* ---------------- ДАТА ---------------- */
 const daysBG=["Неделя","Понеделник","Вторник","Сряда","Четвъртък","Петък","Събота"];
 const daysEN=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -90,15 +126,25 @@ setInterval(()=>{
  lang=!lang;
 },3000);
 
-/* ---------------- АУДИО ЗА ПОСОКА ---------------- */
+/* ---------------- АУДИО ---------------- */
+function playSeq(list){
+ let i=0;
+ const playNext=()=>{
+  if(i>=list.length) return;
+  const a=new Audio(list[i++]+".mp3");
+  a.onended=playNext;
+  a.play();
+ };
+ playNext();
+}
+
 const directionAudio={
  zora_jheleznik:"zora_jheleznik_stadion_beroe",
  jheleznik_zora:"jheleznik_zora_stadion_beroe"
 };
 
 /* ---------------- МАРШРУТИ ---------------- */
-const routes={
-zora_jheleznik:[
+const zora_jheleznik=[
 {name:"Зора - Обръщало",lat:42.424226,lon:25.68831,a:"zora_obryshtalo"},
 {name:"Зора - 2",lat:42.4265,lon:25.6875,a:"zora_2"},
 {name:"Зора - 1",lat:42.4281,lon:25.686,a:"zora_1"},
@@ -125,77 +171,61 @@ zora_jheleznik:[
 {name:"СОУ Железник",lat:42.412613,lon:25.586999,a:"sou_jheleznik"},
 {name:"Железник - 2",lat:42.410353,lon:25.587765,a:"jheleznik_2"},
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,a:"jheleznik_obryshtalo"}
-],
-jheleznik_zora:[
-{name:"Железник - Обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo"},
-{name:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2"},
-{name:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik"},
-{name:"Железник РПУ",lat:42.41269718411499,lon:25.59228326189147,a:"jheleznik_rpu"},
-{name:"Железник изток 1",lat:42.41463453104491,lon:25.595893515373795,a:"jheleznik_iztok_1"},
-{name:"Железник изток 2",lat:42.41560809192034,lon:25.59917884604073,a:"jheleznik_iztok_2"},
-{name:"Три чучура",lat:42.41786789045175,lon:25.605520202815075,a:"tri_chuchura"},
-{name:"Неолитни жилища",lat:42.423569866973175,lon:25.60918175989466,a:"neolit"},
-{name:"МБАЛ Проф. Ст. Киркович",lat:42.425927176018114,lon:25.612742765836824,a:"MBAL"},
-{name:"Спортна 2",lat:42.42790017238624,lon:25.615792016897736,a:"sportna_2"},
-{name:"Стадион Берое",lat:42.43073142193363,lon:25.617257953702808,a:"stadion_beroe"},
-{name:"Жабките",lat:42.43125958525303,lon:25.62159087588618,a:"jabkite"},
-{name:"ТД на НАП",lat:42.43382332081409,lon:25.6282225306597,a:"nap"},
-{name:"Ремиза",lat:42.43737423072981,lon:25.631441352540957,a:"remiza"},
-{name:"Мол Галерия",lat:42.43969514305928,lon:25.63248500136876,a:"mall_galleria"},
-{name:"ПЗ Загорка изток",lat:42.441519411103954,lon:25.633409739947453,a:"pz_zagorka_iztok"},
-{name:"Кауфланд Бедечка запад",lat:42.435652900337004,lon:25.63651386140321,a:"kaufland_bedecka_zapad"},
-{name:"Техникуми юг",lat:42.431907893777385,lon:25.641183417456496,a:"tehnicumi_yug"},
-{name:"Крайречен запад",lat:42.43038732482968,lon:25.64431017773987,a:"krayrechen_zapad"},
-{name:"ПГЕ Джон Атанасов",lat:42.42602245403625,lon:25.647934452417676,a:"djon"},
-{name:"ДЗУ",lat:42.42777583509693,lon:25.654063214990664,a:"dzu"},
-{name:"Спортна зала",lat:42.42790847655722,lon:25.657457124769106,a:"sportna_zala"},
-{name:"Парк Мол",lat:42.428566609565024,lon:25.661989546868977,a:"park_mol"},
-{name:"СБА",lat:42.4293443632923,lon:25.66388483224811,a:"sba"},
-{name:"Спирка",lat:42.43031450621498,lon:25.679456828438195,a:"spirka"},
-{name:"Метро Зора",lat:42.43085835562468,lon:25.68400551190838,a:"metro_zora"},
-{name:"Зора - 1",lat:42.4280739478343,lon:25.687257189172037,a:"zora_1"},
-{name:"Зора - 2",lat:42.426617934886174,lon:25.688156168303106,a:"zora_2"},
-{name:"Зора - Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obryshtalo"}
-]
+];
 
+const routes={
+ zora_jheleznik,
+ jheleznik_zora:[...zora_jheleznik].reverse()
 };
-routes.jheleznik_zora=[...routes.zora_jheleznik].reverse();
+
+/* ---------------- СЪСТОЯНИЕ ---------------- */
+let active=[];
+let currentIndex=-1;
+let targetIndex=null;
+let watchId=null;
+let popupTimer=null;
 
 /* ---------------- UI ---------------- */
-document.getElementById("directionSelect").onchange=e=>{
- setDirection(e.target.value);
+const dirSel=document.getElementById("directionSelect");
+const targetSel=document.getElementById("targetSelect");
+
+dirSel.onchange=()=>{
+ startRoute(dirSel.value);
 };
 
-function setDirection(dir){
+function startRoute(dir){
  active=routes[dir];
  currentIndex=-1;
  targetIndex=null;
+
  document.getElementById("directionText").innerText=
- dir==="zora_jheleznik"?
- "кв. Зора → кв. Железник през Стадион Берое":
- "кв. Железник → кв. Зора през Стадион Берое";
- playSeq(["direction",directionAudio[dir]]);
- render();
+ dir==="zora_jheleznik"
+ ?"кв. Зора → кв. Железник през Стадион Берое"
+ :"кв. Железник → кв. Зора през Стадион Берое";
+
+ playSeq(["line","71","direction",directionAudio[dir]]);
+ renderStops();
+ startGPS();
 }
 
-function render(){
- const s=document.getElementById("stops");
- const t=document.getElementById("targetSelect");
- s.innerHTML=""; t.innerHTML="<option value=''>Избери крайна спирка</option>";
- active.forEach((st,i)=>{
+function renderStops(){
+ const c=document.getElementById("stops");
+ targetSel.innerHTML="<option value=''>Избери крайна спирка</option>";
+ c.innerHTML="";
+ active.forEach((s,i)=>{
   let d=document.createElement("div");
   d.className="stop";
-  d.innerText=st.name;
-  s.appendChild(d);
+  d.innerText=s.name;
+  c.appendChild(d);
   let o=document.createElement("option");
-  o.value=i;o.text=st.name;
-  t.appendChild(o);
+  o.value=i;o.text=s.name;
+  targetSel.appendChild(o);
  });
 }
 
-document.getElementById("targetSelect").onchange=e=>{
- targetIndex=parseInt(e.target.value);
- renderState();
+targetSel.onchange=()=>{
+ targetIndex=parseInt(targetSel.value);
+ updateUI();
 };
 
 /* ---------------- GPS ---------------- */
@@ -209,41 +239,41 @@ function distance(lat1,lon1,lat2,lon2){
  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-navigator.geolocation.watchPosition(pos=>{
- checkStops(pos.coords.latitude,pos.coords.longitude);
-},{},{enableHighAccuracy:true});
+function startGPS(){
+ if(watchId) navigator.geolocation.clearWatch(watchId);
+ watchId=navigator.geolocation.watchPosition(p=>{
+  checkStops(p.coords.latitude,p.coords.longitude);
+ },null,{enableHighAccuracy:true});
+}
 
 function checkStops(lat,lon){
- if(!active.length) return;
+ active.forEach((s,i)=>{
+  const d=distance(lat,lon,s.lat,s.lon);
 
- active.forEach((st,i)=>{
-  const d=distance(lat,lon,st.lat,st.lon);
-
-  // Текуща спирка
   if(d<=10 && i!==currentIndex){
    currentIndex=i;
    document.getElementById("status").innerText="СПИРКА / BUS STOP";
-   document.getElementById("stopName").innerText=st.name;
-   playSeq(["stop",st.a]);
-   renderState();
+   document.getElementById("stopName").innerText=s.name;
+   playSeq(["stop",s.a]);
+   updateUI();
   }
 
-  // Следваща спирка
   if(i===currentIndex+1 && d<=5){
    document.getElementById("status").innerText="СЛЕДВАЩА СПИРКА / NEXT STOP";
-   document.getElementById("stopName").innerText=st.name;
-   playSeq(["next_stop",st.a]);
+   document.getElementById("stopName").innerText=s.name;
+   playSeq(["next_stop",s.a]);
 
    if(i===targetIndex){
     playSeq(["your_stop"]);
     showPopup();
    }
-   renderState();
+   updateUI();
   }
  });
 }
 
-function renderState(){
+/* ---------------- UI UPDATE ---------------- */
+function updateUI(){
  const nodes=document.querySelectorAll(".stop");
  nodes.forEach((d,i)=>{
   d.style.display="none";
@@ -260,15 +290,16 @@ function renderState(){
  });
 }
 
+/* ---------------- POPUP ---------------- */
 function showPopup(){
  if(popupTimer) return;
  const p=document.getElementById("popup");
  let bg=true;
  p.style.display="block";
  popupTimer=setInterval(()=>{
-  p.innerText=bg?
-  "СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ НАТИСНЕТЕ БУТОНА СТОП ИЛИ ВРАТА.":
-  "THE NEXT STOP IS YOURS. PLEASE PRESS STOP OR DOOR BUTTON.";
+  p.innerText=bg
+   ?"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ НАТИСНЕТЕ БУТОНА СТОП ИЛИ ВРАТА."
+   :"THE NEXT STOP IS YOURS. PLEASE PRESS STOP OR DOOR BUTTON.";
   bg=!bg;
  },7000);
 }
@@ -276,6 +307,8 @@ function showPopup(){
 
 </body>
 </html>
+
+
 
 
 
