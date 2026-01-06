@@ -24,6 +24,10 @@ select{width:95%;margin:10px auto;display:block;padding:10px;font-size:16px}
 #label{text-align:center;font-size:22px;margin-top:10px}
 #labelName{text-align:center;font-size:20px;margin-bottom:10px}
 
+#clock{
+ text-align:center;font-size:18px;margin-top:5px;color:#ccc
+}
+
 #popup{
  position:fixed;bottom:20px;left:5%;width:90%;
  background:orange;color:black;padding:15px;
@@ -37,6 +41,7 @@ select{width:95%;margin:10px auto;display:block;padding:10px;font-size:16px}
 <header>
 <h2>STARA ZAGORA SPEECH</h2>
 <div>Автор: Кирил Кирилов | ivanovkiko72@gmail.com</div>
+<div id="clock"></div>
 </header>
 
 <div id="lineBar">
@@ -164,7 +169,11 @@ dirSel.onchange=()=>{
  if(!routes[dirSel.value])return;
  route=routes[dirSel.value];
  document.getElementById("dirText").innerText=dirSel.options[dirSel.selectedIndex].text;
- playQueue(["line.mp3","71.mp3","direction.mp3",dirSel.value+".mp3"]);
+ /* НОВИ ИМЕНА НА АУДИО ФАЙЛОВЕ */
+ const audioFile = dirSel.value === 'zora_jheleznik'
+   ? 'zora_jheleznik_stadion_beroe.mp3'
+   : 'jheleznik_zora_stadion_beroe.mp3';
+ playQueue(["line.mp3","71.mp3","direction.mp3",audioFile]);
  renderStops();
  startGPS();
 };
@@ -191,9 +200,9 @@ function renderStops(){
 
 function startGPS(){
  if(watchId)navigator.geolocation.clearWatch(watchId);
- watchId=navigator.geolocation.watchPosition(onPos,()=>{
-  /* ignore errors */
- },{enableHighAccuracy:true,maximumAge:0,timeout:10000});
+ watchId=navigator.geolocation.watchPosition(onPos,()=>{},{
+  enableHighAccuracy:true,maximumAge:0,timeout:10000
+ });
 }
 
 function onPos(p){
@@ -229,9 +238,26 @@ function showPopup(){
   bg=!bg;
  },7000);
 }
+
+/* ---------------- CLOCK BG/EN ---------------- */
+const daysBg=["Неделя","Понеделник","Вторник","Сряда","Четвъртък","Петък","Събота"];
+const daysEn=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const monthsBg=["януари","февруари","март","април","май","юни","юли","август","септември","октомври","ноември","декември"];
+const monthsEn=["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+let langClock=true; // true = BG , false = EN
+setInterval(()=>{
+ const now=new Date();
+ const d=langClock?daysBg[now.getDay()]:daysEn[now.getDay()];
+ const m=langClock?monthsBg[now.getMonth()]:monthsEn[now.getMonth()];
+ const str=`${now.getDate()} ${m} ${now.getFullYear()} г. – ${d} – ${now.toLocaleTimeString("bg-BG")}`;
+ document.getElementById("clock").innerText=str;
+ langClock=!langClock;
+},3000);
 </script>
 </body>
 </html>
+
 
 
 
