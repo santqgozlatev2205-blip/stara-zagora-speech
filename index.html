@@ -2,61 +2,95 @@
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>STARA ZAGORA SPEECH</title>
+<title>STARA ZAGORA SPEECH – Line 71</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{margin:0;font-family:Arial;background:#000;color:#fff;text-align:center}
-h1{margin:10px 0;color:#ff9800}
-.author{font-size:14px;margin-bottom:10px}
-.lineBox{width:70px;height:70px;background:green;color:#000;
-font-size:42px;font-weight:bold;display:flex;
-align-items:center;justify-content:center;margin:10px auto}
-select{width:95%;padding:10px;font-size:16px;margin:5px auto}
-#label{font-size:22px;margin-top:15px}
-#labelName{font-size:26px;font-weight:bold;margin:5px}
-#stops{margin-top:15px}
-.stop{padding:6px;border-bottom:1px solid #333}
-.current{background:#b00000}
-.next{background:#0a7d00}
-.target{background:#ff9800;color:#000}
+body{margin:0;background:#000;color:#fff;font-family:Arial}
+header{text-align:center;padding:10px}
+#lineBar{display:flex;align-items:center;padding:10px}
+#lineNum{background:green;color:black;font-size:48px;width:90px;text-align:center}
+#dirWrap{overflow:hidden;width:100%;margin-left:10px}
+#dirText{white-space:nowrap;animation:scroll 15s linear infinite;font-size:18px}
+@keyframes scroll{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
+
+select{width:95%;margin:10px auto;display:block;padding:10px;font-size:16px}
+
+.stop{padding:8px;border-bottom:1px solid #333}
+.current{color:red;font-weight:bold}
+.next{color:lime}
+.target{color:orange;font-weight:bold}
+
+#label{text-align:center;font-size:22px;margin-top:10px}
+#labelName{text-align:center;font-size:20px;margin-bottom:10px}
+
 #popup{
-position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-background:#111;border:2px solid orange;padding:15px;
-display:none;font-size:16px;width:90%
+ position:fixed;bottom:20px;left:5%;width:90%;
+ background:orange;color:black;padding:15px;
+ display:none;text-align:center;font-size:18px
 }
 </style>
 </head>
 
 <body>
 
-<h1>STARA ZAGORA SPEECH</h1>
-<div class="author">Автор: Кирил Кирилов · ivanovkiko72@gmail.com</div>
+<header>
+<h2>STARA ZAGORA SPEECH</h2>
+<div>Автор: Кирил Кирилов | ivanovkiko72@gmail.com</div>
+</header>
 
-<div class="lineBox">71</div>
+<div id="lineBar">
+<div id="lineNum">71</div>
+<div id="dirWrap"><div id="dirText">Изберете посока</div></div>
+</div>
 
 <select id="directionSelect">
 <option value="">Избери посока</option>
-<option value="zora_jheleznik_beroe">кв. Зора → кв. Железник през Стадион Берое</option>
-<option value="jheleznik_zora_beroe">кв. Железник → кв. Зора през Стадион Берое</option>
+<option value="zora_jheleznik">кв. Зора → кв. Железник през Стадион Берое</option>
+<option value="jheleznik_zora">кв. Железник → кв. Зора през Стадион Берое</option>
 </select>
 
 <select id="targetSelect">
 <option value="">Избери крайна спирка</option>
 </select>
 
-<div id="label">Изчакване на GPS…</div>
+<div id="label"></div>
 <div id="labelName"></div>
-
 <div id="stops"></div>
 <div id="popup"></div>
 
 <script>
-/* ===================== ROUTES ===================== */
+/* ---------------- AUDIO QUEUE ---------------- */
+let aq=[],playing=false;
+function playQueue(list){
+ aq.push(...list);
+ if(!playing) playNext();
+}
+function playNext(){
+ if(!aq.length){playing=false;return;}
+ playing=true;
+ const a=new Audio(aq.shift());
+ a.onended=playNext;
+ a.play();
+}
 
-const routes = {
+/* ---------------- STATE ---------------- */
+let route=[],currentIndex=-1,nextIndex=-1,targetIndex=null;
+let watchId=null;
 
-zora_jheleznik_beroe: [
+/* ---------------- DISTANCE ---------------- */
+function dist(a,b){
+ const R=6371000;
+ const dLat=(b.lat-a.lat)*Math.PI/180;
+ const dLon=(b.lon-a.lon)*Math.PI/180;
+ const la1=a.lat*Math.PI/180, la2=b.lat*Math.PI/180;
+ const x=Math.sin(dLat/2)**2+
+ Math.sin(dLon/2)**2*Math.cos(la1)*Math.cos(la2);
+ return 2*R*Math.asin(Math.sqrt(x));
+}
+
+/* ---------------- ROUTES ---------------- */
+const zora_jheleznik = [
 {name:"Зора - Обръщало",lat:42.424226,lon:25.68831,a:"zora_obryshtalo"},
 {name:"Зора - 2",lat:42.4265,lon:25.6875,a:"zora_2"},
 {name:"Зора - 1",lat:42.4281,lon:25.686,a:"zora_1"},
@@ -83,9 +117,9 @@ zora_jheleznik_beroe: [
 {name:"СОУ Железник",lat:42.412613,lon:25.586999,a:"sou_jheleznik"},
 {name:"Железник - 2",lat:42.410353,lon:25.587765,a:"jheleznik_2"},
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,a:"jheleznik_obryshtalo"}
-],
+];
 
-jheleznik_zora_beroe: [
+const jheleznik_zora = [
 {name:"Железник - Обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo"},
 {name:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2"},
 {name:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik"},
@@ -115,109 +149,87 @@ jheleznik_zora_beroe: [
 {name:"Зора - 1",lat:42.4280739478343,lon:25.687257189172037,a:"zora_1"},
 {name:"Зора - 2",lat:42.426617934886174,lon:25.688156168303106,a:"zora_2"},
 {name:"Зора - Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obryshtalo"}
-]
+];
 
-};
+const routes={zora_jheleznik,jheleznik_zora};
 
-/* ===================== LOGIC ===================== */
-
+/* ---------------- UI + GPS ---------------- */
 const dirSel=document.getElementById("directionSelect");
 const targetSel=document.getElementById("targetSelect");
 const stopsDiv=document.getElementById("stops");
 const label=document.getElementById("label");
 const labelName=document.getElementById("labelName");
-const popup=document.getElementById("popup");
-
-let route=[],currentIndex=-1,nextIndex=0,targetIndex=null,watchId=null;
-
-function playSeq(list){
-let i=0;
-function p(){
-if(i>=list.length)return;
-const a=new Audio(list[i++]);
-a.onended=p;a.play();
-}
-p();
-}
-
-function renderStops(){
-stopsDiv.innerHTML="";
-targetSel.innerHTML='<option value="">Избери крайна спирка</option>';
-route.forEach((s,i)=>{
-if(targetIndex!==null && i>targetIndex)return;
-const d=document.createElement("div");
-d.className="stop";
-if(i===currentIndex)d.classList.add("current");
-if(i===nextIndex)d.classList.add("next");
-if(i===targetIndex)d.classList.add("target");
-d.textContent=s.name;
-stopsDiv.appendChild(d);
-const o=document.createElement("option");
-o.value=i;o.text=s.name;
-targetSel.appendChild(o);
-});
-}
 
 dirSel.onchange=()=>{
-route=routes[dirSel.value];
-playSeq(["line.mp3","71.mp3","direction.mp3",dirSel.value+".mp3"]);
-renderStops();
-startGPS();
+ if(!routes[dirSel.value])return;
+ route=routes[dirSel.value];
+ document.getElementById("dirText").innerText=dirSel.options[dirSel.selectedIndex].text;
+ playQueue(["line.mp3","71.mp3","direction.mp3",dirSel.value+".mp3"]);
+ renderStops();
+ startGPS();
 };
 
-targetSel.onchange=()=>{
-targetIndex=parseInt(targetSel.value);
-renderStops();
-};
+targetSel.onchange=()=>{targetIndex=parseInt(targetSel.value);renderStops();};
 
-function dist(a,b,c,d){
-const R=6371e3;
-const p=Math.PI/180;
-const x=(c-a)*p;
-const y=(d-b)*p;
-return Math.sqrt(x*x+y*y)*R;
+function renderStops(){
+ stopsDiv.innerHTML="";
+ targetSel.innerHTML="<option value=''>Избери крайна спирка</option>";
+ route.forEach((s,i)=>{
+  if(targetIndex!==null && i>targetIndex)return;
+  let d=document.createElement("div");
+  d.className="stop";
+  if(i===currentIndex)d.classList.add("current");
+  else if(i===nextIndex)d.classList.add("next");
+  else if(i===targetIndex)d.classList.add("target");
+  d.innerText=s.name;
+  stopsDiv.appendChild(d);
+  let o=document.createElement("option");
+  o.value=i;o.text=s.name;
+  targetSel.appendChild(o);
+ });
 }
 
 function startGPS(){
-if(watchId)navigator.geolocation.clearWatch(watchId);
-watchId=navigator.geolocation.watchPosition(pos=>{
-const lat=pos.coords.latitude;
-const lon=pos.coords.longitude;
-route.forEach((s,i)=>{
-const d=dist(lat,lon,s.lat,s.lon);
-if(d<=10 && currentIndex!==i){
-currentIndex=i;
-nextIndex=i+1;
-label.textContent="СПИРКА / BUS STOP";
-labelName.textContent=s.name;
-playSeq(["stop.mp3",s.a+".mp3"]);
-renderStops();
+ if(watchId)navigator.geolocation.clearWatch(watchId);
+ watchId=navigator.geolocation.watchPosition(onPos,()=>{
+  /* ignore errors */
+ },{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
-if(currentIndex===i && d>=5 && nextIndex===i+1){
-label.textContent="СЛЕДВАЩА СПИРКА / NEXT STOP";
-labelName.textContent=route[nextIndex]?.name||"";
-playSeq(["next_stop.mp3",route[nextIndex].a+".mp3"]);
-if(nextIndex===targetIndex){
-playSeq(["your_stop.mp3"]);
-showPopup();
-}
-}
-});
-},{enableHighAccuracy:true,maximumAge:0,timeout:10000});
+
+function onPos(p){
+ const me={lat:p.coords.latitude,lon:p.coords.longitude};
+ route.forEach((s,i)=>{
+  const d=dist(me,s);
+  if(d<=10 && currentIndex!==i){
+   currentIndex=i;nextIndex=i+1;
+   label.innerText="СПИРКА / BUS STOP";
+   labelName.innerText=s.name;
+   playQueue(["stop.mp3",s.a+".mp3"]);
+   if(i===targetIndex)playQueue(["your_stop.mp3"]);
+   renderStops();
+  }
+  if(currentIndex===i-1 && d<=5 && nextIndex!==i){
+   nextIndex=i;
+   label.innerText="СЛЕДВАЩА СПИРКА / NEXT STOP";
+   labelName.innerText=s.name;
+   playQueue(["next_stop.mp3",s.a+".mp3"]);
+   if(i===targetIndex)showPopup();
+   renderStops();
+  }
+ });
 }
 
 function showPopup(){
-popup.style.display="block";
-let bg=true;
-setInterval(()=>{
-popup.textContent=bg?
-"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ СИГНАЛИЗИРАЙТЕ С БУТОН СТОП ИЛИ ВРАТА":
-"NEXT STOP IS YOURS. PLEASE PRESS STOP OR DOOR BUTTON";
-bg=!bg;
-},7000);
+ const p=document.getElementById("popup");
+ let bg=true;p.style.display="block";
+ setInterval(()=>{
+  p.innerText=bg
+  ?"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ НАТИСНЕТЕ БУТОН СТОП ИЛИ ВРАТА."
+  :"NEXT STOP IS YOURS. PLEASE PRESS STOP OR DOOR BUTTON.";
+  bg=!bg;
+ },7000);
 }
 </script>
-
 </body>
 </html>
 
