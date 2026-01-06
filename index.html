@@ -143,8 +143,11 @@ const directionAudio={
  jheleznik_zora:"jheleznik_zora_stadion_beroe"
 };
 
-/* ---------------- МАРШРУТИ ---------------- */
-const zora_jheleznik=[
+<script>
+/* ---------------- ROUTES ---------------- */
+
+/* кв. ЗОРА → кв. ЖЕЛЕЗНИК през Стадион Берое */
+const zora_jheleznik = [
 {name:"Зора - Обръщало",lat:42.424226,lon:25.68831,a:"zora_obryshtalo"},
 {name:"Зора - 2",lat:42.4265,lon:25.6875,a:"zora_2"},
 {name:"Зора - 1",lat:42.4281,lon:25.686,a:"zora_1"},
@@ -173,8 +176,8 @@ const zora_jheleznik=[
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,a:"jheleznik_obryshtalo"}
 ];
 
-const routes={
- jheleznik_zora:[
+/* кв. ЖЕЛЕЗНИК → кв. ЗОРА през Стадион Берое */
+const jheleznik_zora = [
 {name:"Железник - Обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo"},
 {name:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2"},
 {name:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik"},
@@ -204,9 +207,14 @@ const routes={
 {name:"Зора - 1",lat:42.4280739478343,lon:25.687257189172037,a:"zora_1"},
 {name:"Зора - 2",lat:42.426617934886174,lon:25.688156168303106,a:"zora_2"},
 {name:"Зора - Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obryshtalo"}
-]
+];
 
+const routes = {
+  zora_jheleznik,
+  jheleznik_zora
 };
+</script>
+
 
 /* ---------------- СЪСТОЯНИЕ ---------------- */
 let active=[];
@@ -337,6 +345,7 @@ function showPopup(){
 
 </body>
 </html>
+
 
 
 
