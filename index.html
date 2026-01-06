@@ -237,8 +237,10 @@ function onPos(p){
 
 function notifyUser(title,body){
  if('serviceWorker' in navigator && Notification.permission==='granted'){
-  navigator.serviceWorker.controller.postMessage({type:'PLAY',file:title==='Спирка'?'stop.mp3':'next_stop.mp3'});
-  navigator.serviceWorker.controller.postMessage({type:'PUSH',title,body});
+  if(navigator.serviceWorker.controller){                  // <-- добавена проверка
+     navigator.serviceWorker.controller.postMessage({type:'PLAY',file:title==='Спирка'?'stop.mp3':'next_stop.mp3'});
+     navigator.serviceWorker.controller.postMessage({type:'PUSH',title,body});
+  }
  }
 }
 
@@ -273,6 +275,7 @@ setInterval(()=>{
 </script>
 </body>
 </html>
+
 
 
 
