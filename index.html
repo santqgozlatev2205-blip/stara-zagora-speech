@@ -169,7 +169,6 @@ dirSel.onchange=()=>{
  if(!routes[dirSel.value])return;
  route=routes[dirSel.value];
  document.getElementById("dirText").innerText=dirSel.options[dirSel.selectedIndex].text;
- /* НОВИ ИМЕНА НА АУДИО ФАЙЛОВЕ */
  const audioFile = dirSel.value === 'zora_jheleznik'
    ? 'zora_jheleznik_stadion_beroe.mp3'
    : 'jheleznik_zora_stadion_beroe.mp3';
@@ -209,6 +208,7 @@ function onPos(p){
  const me={lat:p.coords.latitude,lon:p.coords.longitude};
  route.forEach((s,i)=>{
   const d=dist(me,s);
+  /* текуща спирка – до 10 m */
   if(d<=10 && currentIndex!==i){
    currentIndex=i;nextIndex=i+1;
    label.innerText="СПИРКА / BUS STOP";
@@ -217,12 +217,14 @@ function onPos(p){
    if(i===targetIndex)playQueue(["your_stop.mp3"]);
    renderStops();
   }
-  if(currentIndex===i-1 && d<=5 && nextIndex!==i){
-   nextIndex=i;
+  /* следваща спирка – веднага щом преминем 5 m ОТ текущата */
+  if(currentIndex===i && d>=5 && nextIndex!==i+1 && i+1<route.length){
+   nextIndex=i+1;
+   const ns=route[nextIndex];
    label.innerText="СЛЕДВАЩА СПИРКА / NEXT STOP";
-   labelName.innerText=s.name;
-   playQueue(["next_stop.mp3",s.a+".mp3"]);
-   if(i===targetIndex)showPopup();
+   labelName.innerText=ns.name;
+   playQueue(["next_stop.mp3",ns.a+".mp3"]);
+   if(nextIndex===targetIndex)showPopup();
    renderStops();
   }
  });
@@ -245,7 +247,7 @@ const daysEn=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Satur
 const monthsBg=["януари","февруари","март","април","май","юни","юли","август","септември","октомври","ноември","декември"];
 const monthsEn=["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-let langClock=true; // true = BG , false = EN
+let langClock=true;
 setInterval(()=>{
  const now=new Date();
  const d=langClock?daysBg[now.getDay()]:daysEn[now.getDay()];
@@ -257,6 +259,7 @@ setInterval(()=>{
 </script>
 </body>
 </html>
+
 
 
 
