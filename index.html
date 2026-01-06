@@ -37,8 +37,8 @@ display:none;font-size:16px;width:90%
 
 <select id="directionSelect">
 <option value="">Избери посока</option>
-<option value="ZJ">кв. Зора → кв. Железник през Стадион Берое</option>
-<option value="JZ">кв. Железник → кв. Зора през Стадион Берое</option>
+<option value="zora_jheleznik_beroe">кв. Зора → кв. Железник през Стадион Берое</option>
+<option value="jheleznik_zora_beroe">кв. Железник → кв. Зора през Стадион Берое</option>
 </select>
 
 <select id="targetSelect">
@@ -56,7 +56,7 @@ display:none;font-size:16px;width:90%
 
 const routes = {
 
-ZJ: [
+zora_jheleznik_beroe: [
 {name:"Зора - Обръщало",lat:42.424226,lon:25.68831,a:"zora_obryshtalo"},
 {name:"Зора - 2",lat:42.4265,lon:25.6875,a:"zora_2"},
 {name:"Зора - 1",lat:42.4281,lon:25.686,a:"zora_1"},
@@ -85,7 +85,7 @@ ZJ: [
 {name:"Железник - Обръщало",lat:42.410706,lon:25.592148,a:"jheleznik_obryshtalo"}
 ],
 
-JZ: [
+jheleznik_zora_beroe: [
 {name:"Железник - Обръщало",lat:42.41125124410245,lon:25.592023915774714,a:"jheleznik_obryshtalo"},
 {name:"Железник - 2",lat:42.410427379423446,lon:25.587824532211535,a:"jheleznik_2"},
 {name:"СОУ Железник",lat:42.41255314735037,lon:25.586921410250508,a:"sou_jheleznik"},
@@ -211,7 +211,7 @@ popup.style.display="block";
 let bg=true;
 setInterval(()=>{
 popup.textContent=bg?
-"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ СИГНАЛИЗИРАЙТЕ СТОП ИЛИ ВРАТА":
+"СЛЕДВАЩАТА СПИРКА Е ВАШАТА. МОЛЯ СИГНАЛИЗИРАЙТЕ С БУТОН СТОП ИЛИ ВРАТА":
 "NEXT STOP IS YOURS. PLEASE PRESS STOP OR DOOR BUTTON";
 bg=!bg;
 },7000);
@@ -220,6 +220,7 @@ bg=!bg;
 
 </body>
 </html>
+
 
 
 
