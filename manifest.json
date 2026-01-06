@@ -1,12 +1,10 @@
 {
   "name": "Stara Zagora Speech",
   "short_name": "SZ Speech",
-  "start_url": "index.html",
-  "scope": "./",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#008000",
   "icons": [
     {
       "src": "icon-192.png",
@@ -20,3 +18,4 @@
     }
   ]
 }
+
