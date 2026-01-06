@@ -244,30 +244,32 @@ function startGPS(){
  });
 }
 
-function onPos(p){
- const me={lat:p.coords.latitude,lon:p.coords.longitude};
- route.forEach((s,i)=>{
-  const d=dist(me,s);
-  if(d<=10 && currentIndex!==i){
-   currentIndex=i;nextIndex=i+1;
-   label.className="current";
-   label.innerText="СПИРКА / BUS STOP";
-   labelName.innerText=s.name;
-   playQueue(["stop.mp3",s.a+".mp3"]);
-   if(i===targetIndex) showFinalPopup();
-   renderStops();
+function announceCurrent(stop){
+  // визуално + аудио през DOM
+  label.className="current";
+  label.innerText="СПИРКА / BUS STOP";
+  labelName.innerText=stop.name;
+  playQueue(["stop.mp3",stop.a+".mp3"]);
+
+  // фоново известие + звук през SW
+  if ('serviceWorker' in navigator && Notification.permission==='granted'){
+     navigator.serviceWorker.controller.postMessage({type:'PLAY', file:'stop.mp3'});
+     navigator.serviceWorker.controller.postMessage({type:'PUSH', title:'Спирка', body:stop.name}));
   }
-  if(currentIndex===i && d>=5 && nextIndex!==i+1 && i+1<route.length){
-   nextIndex=i+1;
-   const ns=route[nextIndex];
-   label.className="next";
-   label.innerText="СЛЕДВАЩА СПИРКА / NEXT STOP";
-   labelName.innerText=ns.name;
-   playQueue(["next_stop.mp3",ns.a+".mp3"]);
-   if(nextIndex===targetIndex) showFinalPopup();
-   renderStops();
+}
+
+// пример за следваща спирка
+function announceNext(stop){
+  label.className="next";
+  label.innerText="СЛЕДВАЩА СПИРКА / NEXT STOP";
+  labelName.innerText=stop.name;
+  playQueue(["next_stop.mp3",stop.a+".mp3"]);
+
+  if ('serviceWorker' in navigator && Notification.permission==='granted'){
+     navigator.serviceWorker.controller.postMessage({type:'PLAY', file:'next_stop.mp3'});
+     navigator.serviceWorker.controller.postMessage({type:'PUSH', title:'Следваща', body:stop.name}));
   }
- });
+}
 }
 
 function showFinalPopup(){
@@ -301,6 +303,7 @@ setInterval(()=>{
 </script>
 </body>
 </html>
+
 
 
 
