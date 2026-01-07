@@ -213,34 +213,44 @@ function onPos(p){
  const me={lat:p.coords.latitude,lon:p.coords.longitude};
  route.forEach((s,i)=>{
   const d=dist(me,s);
-  if(d<=10 && currentIndex!==i){
+   if(d<=10&&currentIndex!==i){
    currentIndex=i;nextIndex=i+1;
+   const isFinal=(i===targetIndex);
    label.className="current";
    label.innerText="СПИРКА / BUS STOP";
    labelName.innerText=s.name;
-   playQueue(["stop.mp3",s.a+".mp3"]);
-   notifyUser("Спирка",s.name);
-   if(i===targetIndex)showFinalPopup();
+   // аудио: stop + спирка + your_stop (ако е крайна)
+   const queue=["stop.mp3",s.a+".mp3"];
+   if(isFinal)queue.push("your_stop.mp3");
+   playQueue(queue);
+   notifyUser("Спирка",s.name,isFinal);
+   if(isFinal)showFinalPopup();
    renderStops();
   }
-  if(currentIndex===i && d>=5 && nextIndex!==i+1 && i+1<route.length){
+  if(currentIndex===i&&d>=5&&nextIndex!==i+1&&i+1<route.length){
    nextIndex=i+1;
    const ns=route[nextIndex];
+   const isFinal=(nextIndex===targetIndex);
    label.className="next";
    label.innerText="СЛЕДВАЩА СПИРКА / NEXT STOP";
    labelName.innerText=ns.name;
-   playQueue(["next_stop.mp3",ns.a+".mp3"]);
-   notifyUser("Следваща спирка",ns.name);
-   if(nextIndex===targetIndex)showFinalPopup();
+   // аудио: next_stop + спирка + your_stop (ако е крайна)
+   const queue=["next_stop.mp3",ns.a+".mp3"];
+   if(isFinal)queue.push("your_stop.mp3");
+   playQueue(queue);
+   notifyUser("Следваща спирка",ns.name,isFinal);
+   if(isFinal)showFinalPopup();
    renderStops();
   }
  });
 }
 
-function notifyUser(title,body){
+function notifyUser(title,body,isFinal){
   if(!navigator.serviceWorker?.controller) return;
   if(Notification.permission!=='granted') return;
-  navigator.serviceWorker.controller.postMessage({type:'PLAY',file:title==='Спирка'?'stop.mp3':'next_stop.mp3'});
+  // ако е крайна – добавяме your_stop.mp3
+  const audioFile=isFinal?'your_stop.mp3':(title==='Спирка'?'stop.mp3':'next_stop.mp3');
+  navigator.serviceWorker.controller.postMessage({type:'PLAY',file:audioFile});
   navigator.serviceWorker.controller.postMessage({type:'PUSH',title,body});
 }
 
@@ -303,6 +313,7 @@ navigator.serviceWorker.addEventListener('message',e=>{
 </script>
 </body>
 </html>
+
 
 
 
