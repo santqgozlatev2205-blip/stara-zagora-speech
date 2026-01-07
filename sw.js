@@ -1,5 +1,5 @@
 // sw.js
-const CACHE='sz-v6';
+const CACHE='sz-v7';
 const FILES=[
 '71.mp3','direction.mp3','djon.mp3','dzu.mp3','icon-192.png','icon-512.png','jabkite.mp3','jheleznik_1.mp3','jheleznik_2.mp3','jheleznik_iztok_1.mp3','jheleznik_iztok_2.mp3','jheleznik_obrushtalo.mp3','jheleznik_rpu.mp3','jheleznik_zora_stadion_beroe.mp3','kaufland_bedecka_iztok.mp3','kaufland_bedecka_zapad.mp3','kiparis.mp3','krayrechen_iztok.mp3','krayrechen_zapad.mp3','line.mp3','manifest.json','metro_zora.mp3','mlechna_kuhnya.mp3','mol_galleria.mp3','neolitni_jilishta.mp3','next_stop.mp3','park_mol.mp3','pz_zagorka_iztok.mp3','pz_zagorka_zapad.mp3','remiza.mp3','sba.mp3','sou_jheleznik.mp3','spirka.mp3','sportna_1.mp3','sportna_2.mp3','sportna_zala.mp3','stadion_beroe.mp3','stop.mp3','sw-reg.js','td_na_nap.mp3','tehnicumi_sever.mp3','tehnicumi_yug.mp3','tri_chuchura.mp3','your_stop.mp3','zora_1.mp3','zora_2.mp3','zora_jheleznik_stadion_beroe.mp3','zora_obrushtalo.mp3'
 ];
@@ -47,6 +47,7 @@ self.addEventListener('message',e=>{
    });
  }
 });
+
 
 
 
