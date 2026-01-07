@@ -7,6 +7,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#008000">
 <script src="sw-reg.js" defer></script>
+
 <style>
 :root{--bg:#fff;--text:#000;--arrow:#007bff;--current:#e60000;--next:#008000;--target:#ffa500;--gray:#ccc}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial}
@@ -32,6 +33,7 @@ select{width:95%;margin:10px auto;display:block;padding:10px;font-size:16px;back
 </head>
 
 <body>
+
 <header>
   <div>STARA ZAGORA SPEECH</div>
   <div>Автор: Кирил Кирилов | ivanovkiko72@gmail.com</div>
@@ -270,9 +272,22 @@ setInterval(()=>{
  document.getElementById("clock").innerText=str;
  langClock=!langClock;
 },3000);
+
+/* --- автоматично презареждане при нова версия --- */
+navigator.serviceWorker.register('sw.js').then(reg=>{
+ reg.addEventListener('updatefound',()=>{
+   const newWorker=reg.installing;
+   newWorker.addEventListener('statechange',()=>{
+     if(newWorker.state==='activated'&&navigator.serviceWorker.controller){
+       window.location.reload();
+     }
+   });
+ });
+});
 </script>
 </body>
 </html>
+
 
 
 
