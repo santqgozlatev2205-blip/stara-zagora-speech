@@ -285,6 +285,14 @@ navigator.serviceWorker.register('sw.js').then(reg=>{
  });
 });
 
+/* --- пробуждаме AudioContext при първи жест --- */
+document.addEventListener('click',()=>{
+ if(!window.audioCtx){
+   window.audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+   if(audioCtx.state==='suspended')audioCtx.resume();
+ }
+},{once:true});
+
 /* --- приемаме звук от SW --- */
 navigator.serviceWorker.addEventListener('message',e=>{
  if(e.data.type==='PLAY'){
@@ -295,6 +303,7 @@ navigator.serviceWorker.addEventListener('message',e=>{
 </script>
 </body>
 </html>
+
 
 
 
