@@ -2,7 +2,7 @@
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
-<title>STARA ZAGORA SPEECH – Line 71</title>
+<title>STARA ZAGORA SPEECH – Line 71 / Line 2</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#008000">
@@ -47,10 +47,25 @@ select{width:90%;max-width:400px;margin:10px auto;display:block;padding:10px;fon
   <div id="dirWrap"><div id="dirText">Изберете посока</div></div>
 </div>
 
-<select id="directionSelect">
+<!-- избор на линия -->
+<select id="lineSelect" onchange="onLineChange()">
+  <option value="">Избери линия</option>
+  <option value="71">Линия 71</option>
+  <option value="2">Линия 2</option>
+</select>
+
+<!-- избор на посока за линия 71 -->
+<select id="directionSelect" style="display:none">
   <option value="">Избери посока</option>
   <option value="zora_jheleznik">кв. Зора → кв. Железник през Стадион Берое</option>
   <option value="jheleznik_zora">кв. Железник → кв. Зора през Стадион Берое</option>
+</select>
+
+<!-- избор на посока за линия 2 -->
+<select id="directionSelectLin2" style="display:none">
+  <option value="">Избери посока</option>
+  <option value="stadion_beroe_mototekhnika">Стадион Берое → Мототехника</option>
+  <option value="mototekhnika_stadion_beroe">Мототехника → Стадион Берое</option>
 </select>
 
 <select id="targetSelect">
@@ -93,7 +108,7 @@ function dist(a,b){
  return 2*R*Math.asin(Math.sqrt(x));
 }
 
-/* ---------------- ROUTES ---------------- */
+/* ---------------- МАСИВИ ЗА ЛИНИЯ 71 ---------------- */
 const zora_jheleznik = [
 {name:"Зора - Обръщало",lat:42.42421849588467,lon:25.687921335918162,a:"zora_obrushtalo"},
 {name:"Зора - 2",lat:42.42523846461485,lon:25.689034273109254,a:"zora_2"},
@@ -193,7 +208,50 @@ const routes={
  71:zora_jheleznik,jheleznik_zora
   2:{stadion_beroe_mototekhnika:line2_stadion_beroe_mototekhnika,mototekhnika_stadion_beroe:line2_mototekhnika_stadion_beroe}
 };
+  
+/* ---------------- ИЗБОР НА ЛИНИЯ И ПОСОКА ---------------- */
+const urlParams=new URLSearchParams(location.search);
+const currentLine=urlParams.get('line')||'71';
 
+// показваме само съответните селекти
+document.getElementById('directionSelect').style.display   =(currentLine==='71'?'block':'none');
+document.getElementById('directionSelectLin2').style.display=(currentLine==='2'?'block':'none');
+
+const dirSelToUse=(currentLine==='2'?document.getElementById('directionSelectLin2'):document.getElementById('directionSelect'));
+
+dirSelToUse.onchange=()=>{
+ if(!routes[currentLine]||!routes[currentLine][dirSelToUse.value])return;
+ route=routes[currentLine][dirSelToUse.value];
+ document.getElementById("dirText").innerText=dirSelToUse.options[dirSelToUse.selectedIndex].text;
+
+ const currentDir=dirSelToUse.value;
+ let audioFile;
+ if(currentDir==='zora_jheleznik'){
+   audioFile='zora_jheleznik_stadion_beroe.mp3';
+ }else if(currentDir==='jheleznik_zora'){
+   audioFile='jheleznik_zora_stadion_beroe.mp3';
+ }else if(currentDir==='stadion_beroe_mototekhnika'){
+   audioFile='line2_stadion_beroe_mototekhnika.mp3';
+ }else if(currentDir==='mototekhnika_stadion_beroe'){
+   audioFile='line2_mototekhnika_stadion_beroe.mp3';
+ }else{
+   audioFile='zora_jheleznik_stadion_beroe.mp3';
+ }
+
+ const lineNumFile=(currentLine==='2'?'2.mp3':'71.mp3');
+ const dirIntroFile=(currentLine==='2'?'line2_direction.mp3':'direction.mp3');
+
+ playQueue([
+   'line.mp3',
+   lineNumFile,
+   dirIntroFile,
+   audioFile
+ ]);
+
+ renderStops();
+ startGPS();
+  
+};
 /* ---------------- UI + GPS ---------------- */
 const dirSel=document.getElementById("directionSelect");
 const targetSel=document.getElementById("targetSelect");
@@ -358,6 +416,7 @@ navigator.serviceWorker.addEventListener('message',e=>{
 </script>
 </body>
 </html>
+
 
 
 
