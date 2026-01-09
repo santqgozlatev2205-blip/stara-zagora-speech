@@ -296,10 +296,12 @@ navigator.serviceWorker.addEventListener('message',e=>{
  if(e.data.type==='PLAY'){
    const a=new Audio(e.data.file);
    a.play().catch(()=>{});
- });
+ }
+});
 </script>
 </body>
 </html>
+
 
 
 
