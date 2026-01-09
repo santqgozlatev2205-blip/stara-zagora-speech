@@ -201,38 +201,37 @@ const stopsDiv=document.getElementById("stops");
 const label=document.getElementById("label");
 const labelName=document.getElementById("labelName");
 
-dirSel.onchange=()=>{
- if(!routes[dirSel.value])return;
- route=routes[dirSel.value];
- document.getElementById("dirText").innerText=dirSel.options[dirSel.selectedIndex].text;
+dirSel.onchange = function () {
+  if (!routes[dirSel.value]) return;
+  route = routes[dirSel.value];
+  document.getElementById("dirText").innerText = dirSel.options[dirSel.selectedIndex].text;
 
- const currentDir=dirSel.value;
- let audioFile;
- if(currentDir==='zora_jheleznik'){
-   audioFile='zora_jheleznik_stadion_beroe.mp3';
- }else if(currentDir==='jheleznik_zora'){
-   audioFile='jheleznik_zora_stadion_beroe.mp3';
- }else if(currentDir==='stadion_beroe_mototekhnika'){
-   audioFile='line2_stadion_beroe_mototekhnika.mp3';
- }else if(currentDir==='mototekhnika_stadion_beroe'){
-   audioFile='line2_mototekhnika_stadion_beroe.mp3';
- }else{
-   audioFile='zora_jheleznik_stadion_beroe.mp3';
- }
+  const currentDir = dirSel.value;
+  let audioFile;
+  if (currentDir === 'zora_jheleznik') {
+    audioFile = 'zora_jheleznik_stadion_beroe.mp3';
+  } else if (currentDir === 'jheleznik_zora') {
+    audioFile = 'jheleznik_zora_stadion_beroe.mp3';
+  } else if (currentDir === 'stadion_beroe_mototekhnika') {
+    audioFile = 'line2_stadion_beroe_mototekhnika.mp3';
+  } else if (currentDir === 'mototekhnika_stadion_beroe') {
+    audioFile = 'line2_mototekhnika_stadion_beroe.mp3';
+  } else {
+    audioFile = 'zora_jheleznik_stadion_beroe.mp3';
+  }
 
- // логика: line.mp3 + (номер).mp3 + direction.mp3 + посока
- const lineNumFile=(currentDir.includes('2')?'2.mp3':'71.mp3');
- const dirIntroFile=(currentDir.includes('2')?'line2_direction.mp3':'direction.mp3');
+  const lineNumFile = (currentDir.includes('2') ? '2.mp3' : '71.mp3');
+  const dirIntroFile = (currentDir.includes('2') ? 'line2_direction.mp3' : 'direction.mp3');
 
- playQueue([
-   'line.mp3',
-   lineNumFile,
-   dirIntroFile,
-   audioFile
- ]);
+  playQueue([
+    'line.mp3',
+    lineNumFile,
+    dirIntroFile,
+    audioFile
+  ]);
 
- renderStops();
- startGPS();
+  renderStops();
+  startGPS();
 };
 
 targetSel.onchange=()=>{targetIndex=parseInt(targetSel.value);renderStops();};
@@ -360,6 +359,7 @@ navigator.serviceWorker.addEventListener('message',e=>{
 </script>
 </body>
 </html>
+
 
 
 
