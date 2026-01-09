@@ -155,7 +155,44 @@ const jheleznik_zora = [
 {name:"Зора - Обръщало",lat:42.424185034488076,lon:25.688234310016735,a:"zora_obrushtalo"}
 ];
 
-const routes={zora_jheleznik,jheleznik_zora};
+/* ---------------- МАСИВИ ЗА ЛИНИЯ 2 ---------------- */
+const line2_stadion_beroe_mototekhnika = [
+{name:"Стадион Берое",lat:42.43073142193363,lon:25.617257953702808,a:"stadion_beroe"},
+{name:"Жабките",lat:42.43125958525303,lon:25.62159087588618,a:"jabkite"},
+{name:"Детска поликлиника",lat:42.430390519158884,lon:25.626260582970453,a:"detska_poliklinika"},
+{name:"ГПЧЕ Ромен Ролан",lat:42.42856030354633,lon:25.62919404868408,a:"gpche_rolan"},
+{name:"ОД на МВР",lat:42.42866564298327,lon:25.63346764086084,a:"od_mvr"},
+{name:"Втора аптека",lat:42.424838842950855,lon:25.634679804305534,a:"vtora_apteka"},
+{name:"Топливо",lat:42.41628932369705,lon:25.637639456585177,a:"toplivo"},
+{name:"м-н Багира",lat:42.41284723432029,lon:25.63869245759115,a:"bagira"},
+{name:"НПГВМ Иван Павлов",lat:42.408738298726156,lon:25.639944859145228,a:"npggvm_pavlov"},
+{name:"Кольо Ганчев 1",lat:42.40374888321123,lon:25.64229056513118,a:"kolyo_ganchev_1"},
+{name:"Радост",lat:42.400994022212814,lon:25.643451161923462,a:"radost"},
+{name:"Загоре",lat:42.39841878070093,lon:25.645121232643618,a:"zagore"},
+{name:"Мототехника",lat:42.39644379179119,lon:25.656383372973796,a:"mototekhnika"}
+];
+
+const line2_mototekhnika_stadion_beroe = [
+{name:"Мототехника",lat:42.39648538865692,lon:25.656949319052163,a:"mototekhnika"},
+{name:"Загоре",lat:42.39778075776289,lon:25.64780770333055,a:"zagore"},
+{name:"Тракия",lat:42.39920587786678,lon:25.64432303368201,a:"trakiya"},
+{name:"Радост",lat:42.40191332708434,lon:25.64342513228571,a:"radost"},
+{name:"Кольо Ганчев 1",lat:42.40429578851736,lon:25.64236524980339,a:"kolyo_ganchev_1"},
+{name:"АПК",lat:42.40869480802293,lon:25.640326894160005,a:"apk"},
+{name:"м-н Баумакс",lat:42.41352120216423,lon:25.63882005737577,a:"baumaks"},
+{name:"Бисер Олива",lat:42.41663913996451,lon:25.637825724850458,a:"biser_oliva"},
+{name:"МБАЛ Св. Иван Рилски",lat:42.42382080694189,lon:25.635289696241813,a:"mbal_ivan_rilski"},
+{name:"м-н Перун",lat:42.42730320797607,lon:25.6342078585832,a:"perun"},
+{name:"ГПЧЕ Ромен Ролан",lat:42.42874654908655,lon:25.62944452642377,a:"gpche_rolan"},
+{name:"ДНА",lat:42.4310812040043,lon:25.626180282309104,a:"dna"},
+{name:"Кипарис",lat:42.431335151142676,lon:25.6211720918523,a:"kiparis"},
+{name:"Стадион Берое",lat:42.431133040970415,lon:25.61711481849596,a:"stadion_beroe"}
+];
+
+const routes={
+ 71:zora_jheleznik,jheleznik_zora
+  2:{stadion_beroe_mototekhnika:line2_stadion_beroe_mototekhnika,mototekhnika_stadion_beroe:line2_mototekhnika_stadion_beroe}
+};
 
 /* ---------------- UI + GPS ---------------- */
 const dirSel=document.getElementById("directionSelect");
@@ -168,10 +205,32 @@ dirSel.onchange=()=>{
  if(!routes[dirSel.value])return;
  route=routes[dirSel.value];
  document.getElementById("dirText").innerText=dirSel.options[dirSel.selectedIndex].text;
- const audioFile = dirSel.value === 'zora_jheleznik'
-   ? 'zora_jheleznik_stadion_beroe.mp3'
-   : 'jheleznik_zora_stadion_beroe.mp3';
- playQueue(["line.mp3","71.mp3","direction.mp3",audioFile]);
+
+ const currentDir=dirSel.value;
+ let audioFile;
+ if(currentDir==='zora_jheleznik'){
+   audioFile='zora_jheleznik_stadion_beroe.mp3';
+ }else if(currentDir==='jheleznik_zora'){
+   audioFile='jheleznik_zora_stadion_beroe.mp3';
+ }else if(currentDir==='stadion_beroe_mototekhnika'){
+   audioFile='line2_stadion_beroe_mototekhnika.mp3';
+ }else if(currentDir==='mototekhnika_stadion_beroe'){
+   audioFile='line2_mototekhnika_stadion_beroe.mp3';
+ }else{
+   audioFile='zora_jheleznik_stadion_beroe.mp3';
+ }
+
+ // логика: line.mp3 + (номер).mp3 + direction.mp3 + посока
+ const lineNumFile=(currentDir.includes('2')?'2.mp3':'71.mp3');
+ const dirIntroFile=(currentDir.includes('2')?'line2_direction.mp3':'direction.mp3');
+
+ playQueue([
+   'line.mp3',
+   lineNumFile,
+   dirIntroFile,
+   audioFile
+ ]);
+
  renderStops();
  startGPS();
 };
@@ -301,6 +360,7 @@ navigator.serviceWorker.addEventListener('message',e=>{
 </script>
 </body>
 </html>
+
 
 
 
