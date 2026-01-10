@@ -180,12 +180,12 @@ function renderStops(){
 }
 
 function startGPS(){
- if(watchId)navigator.geolocation.clearWatch(watchId);
- watchId=navigator.geolocation.watchPosition(onPos,()=>{},{
-  enableHighAccuracy:true,
-  maximumAge:0,
-  timeout:5000,
-  distanceFilter:1
+ if(watchId) navigator.geolocation.clearWatch(watchId);
+ watchId = navigator.geolocation.watchPosition(onPos, () => {}, {
+  enableHighAccuracy: true,
+  timeout: 3000,
+  maximumAge: 0,
+  distanceFilter: 1
  });
 }
 
