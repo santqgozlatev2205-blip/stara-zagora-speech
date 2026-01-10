@@ -128,10 +128,9 @@ const mototekhnika_stadion_beroe = [
 ];
 
 const routes={
-2:{stadion_beroe_mototekhnika,mototekhnika_stadion_beroe}
+  stadion_beroe_mototekhnika,
+  mototekhnika_stadion_beroe
 };
-
-const routes={stadion_beroe_mototekhnika,mototekhnika_stadion_beroe};
 
 /* ---------------- UI + GPS ---------------- */
 const dirSel=document.getElementById("directionSelect");
@@ -141,8 +140,8 @@ const label=document.getElementById("label");
 const labelName=document.getElementById("labelName");
 
 dirSel.onchange=()=>{
- if(!routes[dirSel.value])return;
- route=routes[dirSel.value];
+ if(!routes[dirSel.value]) return;
+route = routes[dirSel.value];
  document.getElementById("dirText").innerText=dirSel.options[dirSel.selectedIndex].text;
  const audioFile = dirSel.value === 'stadion_beroe_mototekhnika'
    ? 'stadion_beroe_mototekhnika.mp3'
